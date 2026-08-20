@@ -169,6 +169,9 @@ body{
   font-size:12px;color:var(--text-muted);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
+.hover-date{
+  font-size:11px;color:var(--text-muted);opacity:.7;margin-top:2px;
+}
 
 /* ===== Modals ===== */
 .modal{
@@ -205,7 +208,7 @@ body{
 }
 .close-btn:hover{background:rgba(255,255,255,0.12);color:var(--text);}
 
-.modal-content h2,.modal-content h3{font-family:var(--font-display);font-weight:500;}
+.modal-content h2,.modal-content h3{font-family:var(--font-display);font-weight:500;padding-right:36px;}
 .modal-content h3{font-size:19px;margin-bottom:6px;}
 
 /* ===== Profile page ===== */
@@ -238,6 +241,9 @@ body{
 .stats-row div{display:flex;flex-direction:column;align-items:flex-start;}
 .stats-row strong{font-family:var(--font-display);font-size:18px;font-weight:500;}
 .stats-row span{color:var(--text-muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em;}
+
+.joined-row{display:flex;align-items:center;gap:5px;margin-top:2px;}
+.joined-row svg{flex-shrink:0;opacity:.7;}
 
 .posts-list{display:flex;flex-direction:column;gap:10px;margin-top:14px;max-height:240px;overflow-y:auto;}
 .posts-list audio{width:100%;height:36px;}
@@ -272,9 +278,9 @@ body{
 /* ===== Form fields ===== */
 .field-label{
   display:block;font-size:12px;font-weight:500;color:var(--text-muted);
-  margin:12px 0 6px;text-transform:uppercase;letter-spacing:.03em;
+  margin:16px 0 8px;text-transform:uppercase;letter-spacing:.03em;
 }
-.field-label:first-of-type{margin-top:4px;}
+.field-label:first-of-type{margin-top:8px;}
 .field-group-label{
   font-size:12px;font-weight:500;color:var(--text-muted);
   margin:18px 0 8px;text-transform:uppercase;letter-spacing:.03em;

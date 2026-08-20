@@ -21,6 +21,24 @@ let markersById = {};
 async function loadMarkers() {
   const res = await fetch('/api/markers');
   const markers = await res.json();
+
+  const coordGroups = {};
+  markers.forEach(m => {
+    const key = `${m.lat.toFixed(3)},${m.lng.toFixed(3)}`;
+    if (!coordGroups[key]) coordGroups[key] = [];
+    coordGroups[key].push(m);
+  });
+  Object.values(coordGroups).forEach(group => {
+    if (group.length > 1) {
+      group.forEach((m, i) => {
+        const angle = (2 * Math.PI * i) / group.length;
+        const r = 0.12 + Math.random() * 0.12;
+        m.lat += r * Math.cos(angle);
+        m.lng += r * Math.sin(angle);
+      });
+    }
+  });
+
   markersById = Object.fromEntries(markers.map(m => [m.id, m]));
 
   globe
@@ -63,6 +81,14 @@ function handlePointHover(point) {
   document.getElementById('hover-name').textContent = point.author_name || '';
   document.getElementById('hover-text').textContent =
     point.preview ? `${point.preview}…` : '';
+  const dateEl = document.getElementById('hover-date');
+  if (point.created_at) {
+    const d = new Date(point.created_at);
+    dateEl.textContent = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    dateEl.style.display = '';
+  } else {
+    dateEl.style.display = 'none';
+  }
   hoverCard.classList.remove('hidden');
   positionHoverCard();
 }
@@ -98,12 +124,22 @@ async function openProfileCard(userId) {
   document.getElementById('pf-location-text').textContent =
     [p.location_city, p.location_country].filter(Boolean).join(', ') || 'Location not set';
   document.getElementById('pf-bio').textContent = p.bio || '';
-  document.getElementById('pf-listens').textContent = p.total_listens || 0;
   document.getElementById('pf-posts-count').textContent = (p.active_posts || []).length;
+  document.getElementById('pf-total-count').textContent = p.total_posts_count || 0;
+
+  const joinedEl = document.getElementById('pf-joined');
+  if (!isOwn && p.created_at) {
+    const d = new Date(p.created_at);
+    document.getElementById('pf-joined-text').textContent =
+      'Joined ' + d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    joinedEl.classList.remove('hidden');
+  } else {
+    joinedEl.classList.add('hidden');
+  }
 
   const linksEl = document.getElementById('pf-links');
   linksEl.innerHTML = '';
-  const linkLabels = { telegram: 'Telegram', github: 'GitHub', instagram: 'Instagram', portfolio: 'Portfolio' };
+  const linkLabels = { telegram: 'Telegram', github: 'GitHub', instagram: 'Instagram', portfolio: 'Portfolio', website: 'Website' };
   Object.entries(p.social_links || {}).forEach(([key, url]) => {
     if (!url) return;
     const a = document.createElement('a');
@@ -149,11 +185,31 @@ function prefillEditForm(p) {
   document.getElementById('edit-username').value = p.username || '';
   document.getElementById('edit-bio').value = p.bio || '';
   document.getElementById('edit-city').value = p.location_city || '';
-  document.getElementById('edit-telegram').value = (p.social_links || {}).telegram || '';
-  document.getElementById('edit-github').value = (p.social_links || {}).github || '';
-  document.getElementById('edit-instagram').value = (p.social_links || {}).instagram || '';
+  const sl = p.social_links || {};
+  document.getElementById('edit-telegram').value = extractUsername(sl.telegram, 't.me/');
+  document.getElementById('edit-github').value = extractUsername(sl.github, 'github.com/');
+  document.getElementById('edit-instagram').value = extractUsername(sl.instagram, 'instagram.com/');
+  document.getElementById('edit-website').value = sl.website || '';
   populateCountrySelect(document.getElementById('edit-country'));
   document.getElementById('edit-country').value = p.location_country || '';
+}
+
+function extractUsername(url, domain) {
+  if (!url) return '';
+  if (url.startsWith('http')) {
+    try {
+      const path = new URL(url).pathname.replace(/^\/+/, '');
+      return path || url;
+    } catch { return url; }
+  }
+  return url;
+}
+
+function buildUrl(username, domain) {
+  if (!username) return '';
+  username = username.trim();
+  if (username.startsWith('http://') || username.startsWith('https://')) return username;
+  return 'https://' + domain + username;
 }
 
 document.getElementById('editProfileBtn').addEventListener('click', showProfileEditMode);
@@ -170,9 +226,10 @@ document.getElementById('saveEditBtn').addEventListener('click', async () => {
     location_country: country || null,
     location_city: document.getElementById('edit-city').value.trim() || null,
     social_links: {
-      telegram: document.getElementById('edit-telegram').value.trim(),
-      github: document.getElementById('edit-github').value.trim(),
-      instagram: document.getElementById('edit-instagram').value.trim(),
+      telegram: buildUrl(document.getElementById('edit-telegram').value, 't.me/'),
+      github: buildUrl(document.getElementById('edit-github').value, 'github.com/'),
+      instagram: buildUrl(document.getElementById('edit-instagram').value, 'instagram.com/'),
+      website: document.getElementById('edit-website').value.trim(),
     },
   };
   if (jittered) {
@@ -322,9 +379,10 @@ document.getElementById('saveProfileBtn').addEventListener('click', async () => 
     home_lat: home.lat,
     home_lng: home.lng,
     social_links: {
-      telegram: document.getElementById('in-telegram').value.trim(),
-      github: document.getElementById('in-github').value.trim(),
-      instagram: document.getElementById('in-instagram').value.trim(),
+      telegram: buildUrl(document.getElementById('in-telegram').value, 't.me/'),
+      github: buildUrl(document.getElementById('in-github').value, 'github.com/'),
+      instagram: buildUrl(document.getElementById('in-instagram').value, 'instagram.com/'),
+      website: document.getElementById('in-website').value.trim(),
     },
   };
   const res = await fetch('/api/profile', {

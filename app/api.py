@@ -64,7 +64,7 @@ def update_my_profile():
 
     social_links = data.get("social_links")
     if isinstance(social_links, dict):
-        allowed_keys = {"telegram", "github", "instagram", "portfolio"}
+        allowed_keys = {"telegram", "github", "instagram", "portfolio", "website"}
         current_user.social_links = {
             k: v for k, v in social_links.items() if k in allowed_keys and v
         }

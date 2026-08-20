@@ -57,6 +57,7 @@ class User(db.Model, UserMixin):
         active_posts = self.audio_posts.filter_by(is_active=True).order_by(
             AudioPost.created_at.desc()
         ).all()
+        total_count = self.audio_posts.count()
         return {
             "id": self.id,
             "full_name": self.full_name,
@@ -66,7 +67,8 @@ class User(db.Model, UserMixin):
             "location_city": self.location_city,
             "location_country": self.location_country,
             "social_links": self.social_links or {},
-            "total_listens": self.total_listens,
+            "total_posts_count": total_count,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
             "active_posts": [p.to_dict(current_user_id) for p in active_posts],
         }
 
@@ -121,6 +123,6 @@ class AudioPost(db.Model):
             "author_id": self.author.id,
             "author_avatar": self.author.avatar_url,
             "author_name": self.author.full_name,
-            # signal to the frontend so text markers render in a different color
             "preview": (self.text_content[:40] if self.post_type == "text" else None),
+            "created_at": self.created_at.isoformat() if self.created_at else None,
         }

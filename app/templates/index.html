@@ -54,6 +54,7 @@
   <div class="hover-body">
     <div id="hover-name" class="hover-name"></div>
     <div id="hover-text" class="hover-text"></div>
+    <div id="hover-date" class="hover-date"></div>
   </div>
 </div>
 
@@ -79,9 +80,13 @@
     <div id="pf-view">
       <p id="pf-bio" class="pf-bio"></p>
       <div id="pf-links" class="links-row"></div>
+      <div id="pf-joined" class="muted joined-row">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span id="pf-joined-text"></span>
+      </div>
       <div class="stats-row">
-        <div><strong id="pf-listens">0</strong><span>Listens</span></div>
         <div><strong id="pf-posts-count">0</strong><span>Active posts</span></div>
+        <div><strong id="pf-total-count">0</strong><span>Total posts</span></div>
       </div>
       <div id="pf-posts-list" class="posts-list"></div>
     </div>
@@ -97,11 +102,13 @@
       <label class="field-label">City <span class="optional">(optional)</span></label>
       <input id="edit-city" maxlength="120" placeholder="e.g. Tashkent">
       <label class="field-label">Telegram</label>
-      <input id="edit-telegram" placeholder="t.me/username">
+      <input id="edit-telegram" placeholder="username">
       <label class="field-label">GitHub</label>
-      <input id="edit-github" placeholder="github.com/username">
+      <input id="edit-github" placeholder="username">
       <label class="field-label">Instagram</label>
-      <input id="edit-instagram" placeholder="instagram.com/username">
+      <input id="edit-instagram" placeholder="username">
+      <label class="field-label">Website <span class="optional">(optional)</span></label>
+      <input id="edit-website" placeholder="yoursite.com">
       <div class="edit-actions">
         <button id="cancelEditBtn" class="btn-text">Cancel</button>
         <button id="saveEditBtn" class="btn-primary">Save</button>
@@ -143,9 +150,14 @@
       <label class="field-label">City <span class="optional">(optional)</span></label>
       <input id="in-city" placeholder="e.g. Tashkent">
       <div class="field-group-label">Social links <span class="optional">(optional)</span></div>
-      <input id="in-telegram" placeholder="Telegram — t.me/...">
-      <input id="in-github" placeholder="GitHub — github.com/...">
-      <input id="in-instagram" placeholder="Instagram">
+      <label class="field-label">Telegram</label>
+      <input id="in-telegram" placeholder="username">
+      <label class="field-label">GitHub</label>
+      <input id="in-github" placeholder="username">
+      <label class="field-label">Instagram</label>
+      <input id="in-instagram" placeholder="username">
+      <label class="field-label">Website <span class="optional">(optional)</span></label>
+      <input id="in-website" placeholder="yoursite.com">
       <button id="saveProfileBtn" class="btn-primary full-width">Save and continue</button>
     </div>
 
