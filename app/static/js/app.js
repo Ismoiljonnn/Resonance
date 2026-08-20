@@ -388,11 +388,20 @@ async function checkAuth() {
   if (data.authenticated) {
     currentUser = data.user;
     document.getElementById('userChip').classList.remove('hidden');
+    document.getElementById('loginBtn').classList.add('hidden');
     document.getElementById('userAvatar').src = currentUser.avatar_url || '';
     document.getElementById('userName').textContent = currentUser.full_name;
+  } else {
+    document.getElementById('userChip').classList.add('hidden');
+    document.getElementById('loginBtn').classList.remove('hidden');
   }
   return data;
 }
+
+document.getElementById('loginBtn').addEventListener('click', () => {
+  document.getElementById('googleLoginBtn').href = `/auth/google/login?intent=share_thought`;
+  showModal('authModal');
+});
 
 document.getElementById('recordTrigger').addEventListener('click', async () => {
   const auth = await checkAuth();
