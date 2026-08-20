@@ -52,6 +52,13 @@ class User(db.Model, UserMixin):
             and self.home_lat is not None and self.home_lng is not None
         )
 
+    def _clean_social_links(self):
+        sl = dict(self.social_links or {})
+        tg = sl.get("telegram", "")
+        if tg:
+            sl["telegram"] = tg.replace("t.me/@", "t.me/").lstrip("@")
+        return sl
+
     def to_public_dict(self, current_user_id=None):
         """What other users see on this user's public profile card"""
         cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
@@ -71,7 +78,7 @@ class User(db.Model, UserMixin):
             "bio": self.bio,
             "location_city": self.location_city,
             "location_country": self.location_country,
-            "social_links": self.social_links or {},
+            "social_links": self._clean_social_links(),
             "total_posts_count": total_count,
             "active_posts_count": len(active_posts),
             "created_at": self.created_at.isoformat() if self.created_at else None,

@@ -43,6 +43,8 @@
     </div>
   </div>
 
+  <button class="btn-fix" id="fixTelegramBtn" onclick="fixTelegram()">Fix @ in Telegram usernames</button>
+
   <div class="admin-tabs">
     <button class="admin-tab active" data-tab="users">Users</button>
     <button class="admin-tab" data-tab="posts">Posts</button>
@@ -162,6 +164,17 @@ document.querySelectorAll('.admin-tab').forEach(tab => {
     if (tab.dataset.tab === 'posts') loadPosts(document.getElementById('postsSearch').value.trim());
   });
 });
+
+async function fixTelegram() {
+  const btn = document.getElementById('fixTelegramBtn');
+  btn.textContent = 'Fixing...';
+  btn.disabled = true;
+  const res = await fetch('/api/admin/fix-telegram', { method: 'POST' });
+  const data = await res.json();
+  btn.textContent = `Fixed ${data.fixed} users`;
+  setTimeout(() => { btn.textContent = 'Fix @ in Telegram usernames'; btn.disabled = false; }, 3000);
+  loadUsers();
+}
 
 document.getElementById('usersSearch').addEventListener('input', (e) => {
   clearTimeout(usersTimer);

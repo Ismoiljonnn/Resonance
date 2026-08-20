@@ -70,6 +70,16 @@ html,body{overflow:auto;height:auto !important;}
 }
 .btn-danger-sm:hover{background:rgba(242,139,130,0.25);}
 
+.btn-fix{
+  display:inline-block;margin-bottom:20px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-md);padding:10px 20px;
+  color:var(--text);font-size:13px;cursor:pointer;
+  font-family:var(--font-body);transition:background .15s;
+}
+.btn-fix:hover{background:var(--surface-2);}
+.btn-fix:disabled{opacity:.5;cursor:default;}
+
 @media(max-width:600px){
   .admin-stats{flex-direction:column;}
   .admin-card{flex-wrap:wrap;}

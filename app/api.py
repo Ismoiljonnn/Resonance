@@ -257,3 +257,24 @@ def admin_delete_user(user_id):
     db.session.delete(user)
     db.session.commit()
     return jsonify({"ok": True})
+
+
+@api_bp.route("/admin/fix-telegram", methods=["POST"])
+@login_required
+def admin_fix_telegram():
+    if not is_admin(current_user):
+        return jsonify({"error": "Forbidden"}), 403
+    users = User.query.filter(User.social_links.isnot(None)).all()
+    fixed = 0
+    for u in users:
+        sl = dict(u.social_links or {})
+        tg = sl.get("telegram", "")
+        if not tg:
+            continue
+        clean = tg.replace("t.me/@", "t.me/").lstrip("@")
+        if clean != tg:
+            sl["telegram"] = clean
+            u.social_links = sl
+            fixed += 1
+    db.session.commit()
+    return jsonify({"fixed": fixed})
