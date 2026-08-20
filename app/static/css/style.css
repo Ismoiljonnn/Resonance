@@ -55,6 +55,34 @@ body{
 
 #topbar-actions{display:flex;align-items:center;gap:10px;position:relative;flex-shrink:0;}
 
+/* ===== Bottom bar (mobile only) ===== */
+.bottom-bar{
+  display:none;position:fixed;bottom:0;left:0;right:0;z-index:30;
+  background:var(--surface);border-top:1px solid var(--border);
+  padding:8px 16px;padding-bottom:max(8px,env(safe-area-inset-bottom));
+  justify-content:center;align-items:center;gap:24px;
+}
+.bb-btn{
+  background:none;border:none;color:var(--text);
+  width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .15s;
+}
+.bb-btn:hover{background:var(--surface-2);}
+.bb-primary{
+  background:var(--blue-600);color:#fff;width:52px;height:52px;
+  box-shadow:var(--elev-2);
+}
+.bb-primary:hover{background:var(--blue-700);}
+.bb-avatar{width:32px;height:32px;border-radius:50%;background:var(--surface-2);}
+.bb-user-wrap{position:relative;}
+.bb-menu{
+  position:absolute;bottom:calc(100% + 8px);right:0;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-md);box-shadow:var(--elev-4);
+  min-width:180px;padding:6px;z-index:40;
+}
+
 /* ===== Buttons ===== */
 .btn-primary{
   display:inline-flex;align-items:center;gap:8px;

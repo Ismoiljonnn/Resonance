@@ -374,9 +374,14 @@ async function checkAuth() {
     document.getElementById('loginBtn').classList.add('hidden');
     document.getElementById('userAvatar').src = currentUser.avatar_url || '';
     document.getElementById('userName').textContent = currentUser.full_name;
+    document.getElementById('bbLogin').classList.add('hidden');
+    document.getElementById('bbProfile').classList.remove('hidden');
+    document.getElementById('bbAvatar').src = currentUser.avatar_url || '';
   } else {
     document.getElementById('userChip').classList.add('hidden');
     document.getElementById('loginBtn').classList.remove('hidden');
+    document.getElementById('bbLogin').classList.remove('hidden');
+    document.getElementById('bbProfile').classList.add('hidden');
   }
   return data;
 }
@@ -409,6 +414,32 @@ document.getElementById('myProfileBtn').addEventListener('click', () => {
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
+  window.location.href = '/auth/logout';
+});
+
+// ============ Bottom bar (mobile) ============
+document.getElementById('bbSearch').addEventListener('click', () => {
+  document.getElementById('searchTrigger').click();
+});
+document.getElementById('bbRecord').addEventListener('click', () => {
+  document.getElementById('recordTrigger').click();
+});
+document.getElementById('bbLogin').addEventListener('click', () => {
+  document.getElementById('loginBtn').click();
+});
+document.getElementById('bbProfile').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('bbMenu').classList.toggle('hidden');
+});
+document.addEventListener('click', () => {
+  const m = document.getElementById('bbMenu');
+  if (m) m.classList.add('hidden');
+});
+document.getElementById('bbMyProfile').addEventListener('click', () => {
+  document.getElementById('bbMenu').classList.add('hidden');
+  if (currentUser) openProfileCard(currentUser.id);
+});
+document.getElementById('bbLogout').addEventListener('click', () => {
   window.location.href = '/auth/logout';
 });
 

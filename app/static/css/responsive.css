@@ -11,11 +11,14 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
    ========================================================== */
 @media (max-width:320px){
 
-  /* Topbar — one row, no wrap */
+  /* Topbar — brand only, actions move to bottom bar */
   #topbar{padding:10px 12px;}
-  #topbar-actions{gap:6px;}
+  #topbar-actions{display:none;}
   .brand-icon{width:20px;height:20px;}
   .brand-name{font-size:14px;}
+
+  /* Bottom bar — visible */
+  .bottom-bar{display:flex;}
 
   /* Buttons — compact, icon-only where possible */
   .btn-primary{padding:8px 12px;font-size:12px;gap:5px;}
@@ -99,9 +102,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
 @media (min-width:321px) and (max-width:375px){
 
   #topbar{padding:10px 14px;}
-  #topbar-actions{gap:7px;}
+  #topbar-actions{display:none;}
   .brand-icon{width:22px;height:22px;}
   .brand-name{font-size:15px;}
+
+  /* Bottom bar — visible */
+  .bottom-bar{display:flex;}
 
   .btn-primary{padding:8px 14px;font-size:12px;gap:5px;}
   .btn-primary svg{width:15px;height:15px;}
@@ -150,8 +156,11 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
 @media (min-width:376px) and (max-width:480px){
 
   #topbar{padding:12px 16px;}
-  #topbar-actions{gap:8px;}
+  #topbar-actions{display:none;}
   .brand-name{font-size:16px;}
+
+  /* Bottom bar — visible */
+  .bottom-bar{display:flex;}
 
   .btn-primary{padding:9px 16px;font-size:13px;gap:6px;}
   .btn-primary svg{width:16px;height:16px;}
