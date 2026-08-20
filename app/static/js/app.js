@@ -253,6 +253,13 @@ function renderProfilePosts(posts, isOwn) {
       row.appendChild(delBtn);
     }
     wrap.appendChild(row);
+    if (post.created_at) {
+      const d = new Date(post.created_at);
+      const dateEl = document.createElement('div');
+      dateEl.className = 'post-date';
+      dateEl.textContent = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' · ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      wrap.appendChild(dateEl);
+    }
     postsListEl.appendChild(wrap);
   });
 }

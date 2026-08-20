@@ -364,6 +364,7 @@ body{
   margin-top:2px;
 }
 .post-delete-btn:hover{color:var(--danger);background:rgba(242,139,130,0.12);}
+.post-date{font-size:11px;color:var(--text-muted);margin-top:6px;opacity:.7;}
 
 .edit-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
 
