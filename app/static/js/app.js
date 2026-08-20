@@ -566,7 +566,7 @@ document.getElementById('searchTrigger').addEventListener('click', async () => {
 });
 
 document.getElementById('searchInput').addEventListener('input', (e) => {
-  const q = e.target.value.trim().toLowerCase();
+  const q = e.target.value.trim().replace(/^@+/, '').toLowerCase();
   if (!q) { renderSearchResults(allSearchUsers); return; }
   const filtered = allSearchUsers.filter(u =>
     (u.full_name || '').toLowerCase().includes(q) ||
