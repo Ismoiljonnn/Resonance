@@ -123,6 +123,7 @@ class AudioPost(db.Model):
             "author_id": self.author.id,
             "author_avatar": self.author.avatar_url,
             "author_name": self.author.full_name,
-            "preview": (self.text_content[:40] if self.post_type == "text" else None),
+            "author_city": self.author.location_city or '',
+            "text_content": self.text_content if self.post_type == "text" else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }

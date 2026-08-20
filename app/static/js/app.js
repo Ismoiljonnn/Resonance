@@ -46,15 +46,16 @@ async function loadMarkers() {
 
   const coordGroups = {};
   markers.forEach(m => {
-    const key = `${m.lat.toFixed(3)},${m.lng.toFixed(3)}`;
+    const key = `${m.lat.toFixed(2)},${m.lng.toFixed(2)}`;
     if (!coordGroups[key]) coordGroups[key] = [];
     coordGroups[key].push(m);
   });
   Object.values(coordGroups).forEach(group => {
     if (group.length > 1) {
+      const baseR = 0.18 + group.length * 0.04;
       group.forEach((m, i) => {
         const angle = (2 * Math.PI * i) / group.length;
-        const r = 0.12 + Math.random() * 0.12;
+        const r = baseR + Math.random() * 0.08;
         m.lat += r * Math.cos(angle);
         m.lng += r * Math.sin(angle);
       });
@@ -69,7 +70,7 @@ async function loadMarkers() {
     .pointLng('lng')
     .pointColor(m => markerColor(m.id))
     .pointAltitude(0.012)
-    .pointRadius(0.35);
+    .pointRadius(0.25);
 }
 loadMarkers();
 
@@ -86,9 +87,10 @@ document.getElementById('globeViz').addEventListener('mousemove', (e) => {
 function positionHoverCard() {
   const pad = 16;
   const rect = hoverCard.getBoundingClientRect();
-  let left = lastMouseX - rect.width - pad; // to the left of the cursor / point
+  let left = lastMouseX - rect.width - pad;
   let top = lastMouseY - rect.height / 2;
   if (left < 8) left = lastMouseX + pad;
+  if (left + rect.width > window.innerWidth - 8) left = window.innerWidth - rect.width - 8;
   top = Math.max(8, Math.min(window.innerHeight - rect.height - 8, top));
   hoverCard.style.left = `${left}px`;
   hoverCard.style.top = `${top}px`;
@@ -101,8 +103,14 @@ function handlePointHover(point) {
   }
   document.getElementById('hover-avatar').src = point.author_avatar || '';
   document.getElementById('hover-name').textContent = point.author_name || '';
-  document.getElementById('hover-text').textContent =
-    point.preview ? `${point.preview}…` : '';
+  const cityEl = document.getElementById('hover-city');
+  if (point.author_city) {
+    cityEl.textContent = point.author_city;
+    cityEl.style.display = '';
+  } else {
+    cityEl.style.display = 'none';
+  }
+  document.getElementById('hover-text').textContent = point.text_content || '';
   const dateEl = document.getElementById('hover-date');
   if (point.created_at) {
     const d = new Date(point.created_at);

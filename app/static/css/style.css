@@ -152,13 +152,13 @@ body{
 /* ===== Hover card ===== */
 .hover-card{
   position:fixed;z-index:25;pointer-events:none;
-  display:flex;align-items:center;gap:10px;
+  display:flex;align-items:flex-start;gap:10px;
   background:var(--surface);
   border:1px solid var(--border);
-  border-radius:999px;
-  padding:6px 16px 6px 6px;
+  border-radius:var(--radius-md);
+  padding:10px 14px 10px 10px;
   box-shadow:var(--elev-3);
-  max-width:280px;
+  max-width:340px;min-width:180px;
 }
 .hover-avatar{
   width:34px;height:34px;border-radius:50%;flex-shrink:0;
@@ -166,12 +166,15 @@ body{
 }
 .hover-body{min-width:0;}
 .hover-name{font-family:var(--font-display);font-weight:500;font-size:13px;line-height:1.3;}
+.hover-city{font-size:11px;color:var(--text-muted);margin-top:1px;}
 .hover-text{
   font-size:12px;color:var(--text-muted);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  margin-top:4px;line-height:1.4;
+  word-wrap:break-word;overflow-wrap:break-word;
+  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;
 }
 .hover-date{
-  font-size:11px;color:var(--text-muted);opacity:.7;margin-top:2px;
+  font-size:11px;color:var(--text-muted);opacity:.7;margin-top:3px;
 }
 
 /* ===== Modals ===== */
