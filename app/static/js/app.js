@@ -145,6 +145,20 @@ async function deletePostFromHover(postId) {
   loadMarkers();
 }
 
+async function deleteProfilePost(postId, element) {
+  if (!confirm('Delete this post?')) return;
+  const res = await fetch(`/api/audio/${postId}`, { method: 'DELETE' });
+  if (!res.ok) {
+    showToast('Failed to delete');
+    return;
+  }
+  element.remove();
+  showToast('Post deleted');
+  loadMarkers();
+  const countEl = document.getElementById('pf-posts-count');
+  countEl.textContent = Math.max(0, parseInt(countEl.textContent) - 1);
+}
+
 function handlePointClick(point) {
   if (!point) return;
   hoverCard.classList.add('hidden');
@@ -206,12 +220,31 @@ async function openProfileCard(userId) {
   postsListEl.innerHTML = '';
   (p.active_posts || []).forEach(post => {
     const wrap = document.createElement('div');
-    const bubble = document.createElement('div');
-    bubble.className = 'post-text-bubble';
-    bubble.textContent = post.text_content;
-    bubble.style.cursor = 'pointer';
-    bubble.addEventListener('click', () => openSinglePost(post.id));
-    wrap.appendChild(bubble);
+    wrap.className = 'post-text-bubble';
+
+    const row = document.createElement('div');
+    row.className = 'post-bubble-row';
+
+    const textEl = document.createElement('div');
+    textEl.className = 'post-bubble-text';
+    textEl.textContent = post.text_content;
+    textEl.style.cursor = 'pointer';
+    textEl.addEventListener('click', () => openSinglePost(post.id));
+    row.appendChild(textEl);
+
+    if (isOwn) {
+      const delBtn = document.createElement('button');
+      delBtn.className = 'post-delete-btn';
+      delBtn.title = 'Delete post';
+      delBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      delBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteProfilePost(post.id, wrap);
+      });
+      row.appendChild(delBtn);
+    }
+
+    wrap.appendChild(row);
     postsListEl.appendChild(wrap);
   });
 
