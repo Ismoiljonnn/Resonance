@@ -418,6 +418,7 @@ body{
 .modal-content input:focus, .modal-content textarea:focus, .modal-content select:focus{
   outline:none;border-color:var(--blue);
 }
+.search-input-wrap input:focus{border-color:var(--border) !important;}
 .modal-content textarea{resize:none;}
 
 .post-actions{display:flex;justify-content:flex-end;margin-top:10px;}
