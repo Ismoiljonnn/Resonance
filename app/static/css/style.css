@@ -136,7 +136,7 @@ body{
   position:absolute;top:calc(100% + 8px);right:0;
   background:var(--surface);border:1px solid var(--border);
   border-radius:var(--radius-md);box-shadow:var(--elev-4);
-  min-width:380px;padding:6px;z-index:40;
+  min-width:190px;padding:6px;z-index:40;
 }
 .user-menu-item{
   display:flex;align-items:center;gap:10px;width:100%;
@@ -199,6 +199,7 @@ body{
   animation:slideUp .18s cubic-bezier(.2,.8,.2,1);
   max-height:92vh;overflow-y:auto;overflow-x:hidden;
 }
+.profile-card{width:520px;}
 @keyframes slideUp{
   from{opacity:0;transform:translateY(10px) scale(.99);}
   to{opacity:1;transform:translateY(0) scale(1);}
