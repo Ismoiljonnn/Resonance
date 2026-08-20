@@ -74,7 +74,7 @@ async function loadMarkers() {
     .pointLng('lng')
     .pointColor(m => markerColor(m.id))
     .pointAltitude(0.012)
-    .pointRadius(0.25);
+    .pointRadius(0.15);
 }
 loadMarkers();
 

@@ -54,19 +54,16 @@ def create_app():
     app.register_blueprint(main_bp)
 
     with app.app_context():
-        users = User.query.filter(User.social_links.isnot(None)).all()
-        changed = False
-        for u in users:
-            sl = u.social_links or {}
-            tg = sl.get("telegram", "")
-            if not tg:
-                continue
-            clean = tg.replace("t.me/@", "t.me/").lstrip("@")
-            if clean != tg:
-                sl["telegram"] = clean
-                u.social_links = sl
-                changed = True
-        if changed:
+        try:
+            from sqlalchemy import text
+            db.session.execute(text(
+                "UPDATE users SET social_links = jsonb_set("
+                "social_links, '{telegram}', "
+                "to_jsonb(replace(social_links->>'telegram', '@', ''))"
+                ") WHERE social_links->>'telegram' LIKE '%@%'"
+            ))
             db.session.commit()
+        except Exception:
+            db.session.rollback()
 
     return app

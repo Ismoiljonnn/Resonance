@@ -84,7 +84,7 @@ function populateCountrySelect(selectEl) {
 // Small jitter so multiple users in the same country don't sit on the
 // exact same point.
 function jitterCoords(lat, lng) {
-  const spread = 2.5;
+  const spread = 4.5;
   const j = () => (Math.random() - 0.5) * spread;
   return { lat: lat + j(), lng: lng + j() };
 }
@@ -92,7 +92,7 @@ function jitterCoords(lat, lng) {
 // Per-post jitter: slightly offsets a marker so posts from the same
 // user (same home coords) don't perfectly overlap on the globe.
 function jitterPostCoords(lat, lng) {
-  const spread = 0.4;
+  const spread = 0.8;
   const j = () => (Math.random() - 0.5) * spread;
   return { lat: lat + j(), lng: lng + j() };
 }
