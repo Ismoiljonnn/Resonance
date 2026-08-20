@@ -26,6 +26,16 @@
 .admin-tab:hover{background:var(--surface);}
 .admin-tab.active{background:var(--surface);color:var(--text);}
 
+.admin-search{margin-bottom:16px;}
+.admin-search-input{
+  width:100%;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-md);padding:12px 16px;
+  font-size:14px;color:var(--text);font-family:var(--font-body);
+  outline:none;transition:border-color .2s;
+}
+.admin-search-input:focus{border-color:var(--blue-600);}
+.admin-search-input::placeholder{color:var(--text-muted);}
+
 .admin-list{display:flex;flex-direction:column;gap:8px;}
 .admin-card{
   display:flex;align-items:center;gap:12px;
@@ -34,12 +44,18 @@
 }
 .admin-card-avatar{width:40px;height:40px;border-radius:50%;flex-shrink:0;background:var(--surface-2);}
 .admin-card-info{flex:1;min-width:0;}
+.admin-card-row{display:flex;align-items:center;gap:8px;}
 .admin-card-name{font-family:var(--font-display);font-weight:500;font-size:14px;}
 .admin-card-meta{font-size:12px;color:var(--text-muted);margin-top:2px;}
 .admin-card-text{
   font-size:13px;margin-top:4px;
   word-wrap:break-word;overflow-wrap:break-word;white-space:normal;
   max-height:60px;overflow:hidden;
+}
+.admin-tag-archived{
+  background:rgba(242,139,130,0.15);color:var(--danger);
+  font-size:10px;padding:2px 8px;border-radius:999px;
+  font-weight:500;font-family:var(--font-display);flex-shrink:0;
 }
 .admin-empty{text-align:center;color:var(--text-muted);padding:40px;font-size:14px;}
 

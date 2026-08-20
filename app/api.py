@@ -177,7 +177,18 @@ def admin_stats():
 def admin_users():
     if not is_admin(current_user):
         return jsonify({"error": "Forbidden"}), 403
-    users = User.query.order_by(User.created_at.desc()).all()
+    q = request.args.get("q", "").strip()
+    query = User.query
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            db.or_(
+                User.full_name.ilike(like),
+                User.username.ilike(like),
+                User.email.ilike(like),
+            )
+        )
+    users = query.order_by(User.created_at.desc()).all()
     return jsonify([{
         "id": u.id,
         "full_name": u.full_name,
@@ -195,13 +206,23 @@ def admin_users():
 def admin_posts():
     if not is_admin(current_user):
         return jsonify({"error": "Forbidden"}), 403
-    posts = AudioPost.query.filter_by(is_active=True).order_by(
-        AudioPost.created_at.desc()
-    ).limit(200).all()
+    q = request.args.get("q", "").strip()
+    query = AudioPost.query
+    if q:
+        like = f"%{q}%"
+        query = query.join(User).filter(
+            db.or_(
+                AudioPost.text_content.ilike(like),
+                User.full_name.ilike(like),
+                User.username.ilike(like),
+            )
+        )
+    posts = query.order_by(AudioPost.created_at.desc()).limit(300).all()
     return jsonify([{
         "id": p.id,
         "text_content": p.text_content,
         "post_type": p.post_type,
+        "is_active": p.is_active,
         "created_at": p.created_at.isoformat() if p.created_at else None,
         "author_name": p.author.full_name,
         "author_id": p.author.id,
