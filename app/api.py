@@ -73,9 +73,14 @@ def update_my_profile():
     social_links = data.get("social_links")
     if isinstance(social_links, dict):
         allowed_keys = {"telegram", "github", "instagram", "portfolio", "website"}
-        current_user.social_links = {
-            k: v for k, v in social_links.items() if k in allowed_keys and v
-        }
+        cleaned = {}
+        for k, v in social_links.items():
+            if k not in allowed_keys or not v:
+                continue
+            if k == "telegram" and isinstance(v, str):
+                v = v.lstrip("@")
+            cleaned[k] = v
+        current_user.social_links = cleaned
 
     db.session.commit()
     return jsonify(current_user.to_public_dict())

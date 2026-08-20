@@ -290,16 +290,16 @@ function extractUsername(url, domain) {
   if (!url) return '';
   if (url.startsWith('http')) {
     try {
-      const path = new URL(url).pathname.replace(/^\/+/, '');
+      const path = new URL(url).pathname.replace(/^\/+/, '').replace(/^@+/, '');
       return path || url;
     } catch { return url; }
   }
-  return url;
+  return url.replace(/^@+/, '');
 }
 
 function buildUrl(username, domain) {
   if (!username) return '';
-  username = username.trim();
+  username = username.trim().replace(/^@+/, '');
   if (username.startsWith('http://') || username.startsWith('https://')) return username;
   return 'https://' + domain + username;
 }

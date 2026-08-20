@@ -65,4 +65,17 @@ def create_app():
 
     app.register_blueprint(main_bp)
 
+    with app.app_context():
+        users = User.query.filter(User.social_links.isnot(None)).all()
+        changed = False
+        for u in users:
+            sl = u.social_links or {}
+            tg = sl.get("telegram", "")
+            if tg.startswith("@"):
+                sl["telegram"] = tg.lstrip("@")
+                u.social_links = sl
+                changed = True
+        if changed:
+            db.session.commit()
+
     return app
