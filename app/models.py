@@ -62,7 +62,7 @@ class User(db.Model, UserMixin):
         all_posts = self.audio_posts.filter_by(is_active=True).order_by(
             AudioPost.created_at.desc()
         ).all()
-        total_count = self.audio_posts.count()
+        total_count = self.audio_posts.filter_by(is_active=True).count()
         return {
             "id": self.id,
             "full_name": self.full_name,
