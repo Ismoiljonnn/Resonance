@@ -6,15 +6,37 @@ let profileEditTarget = null; // which user id the profile modal is currently sh
 const body = document.body;
 
 // ============ 3D Globe ============
+const MARKER_COLORS = [
+  '#8ab4f8','#f28b82','#81c995','#fdd663','#c58af9',
+  '#ff8a80','#80cbc4','#ffab91','#a5d6a7','#90caf9',
+  '#ce93d8','#ffcc80','#80deea','#ef9a9a','#b39ddb',
+];
+function markerColor(id) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = ((h << 5) - h + id.charCodeAt(i)) | 0;
+  return MARKER_COLORS[Math.abs(h) % MARKER_COLORS.length];
+}
+
 const globe = Globe()(document.getElementById('globeViz'))
   .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
   .backgroundColor('rgba(0,0,0,0)')
   .atmosphereColor('#8ab4f8')
   .atmosphereAltitude(0.18)
   .pointOfView({ lat: 41.3, lng: 69.2, altitude: 2.2 })
-  .pointLabel(() => '') // we render our own hover card instead of the built-in tooltip
+  .pointLabel(() => '')
   .onPointHover(handlePointHover)
   .onPointClick(handlePointClick);
+
+fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
+  .then(r => r.json())
+  .then(countries => {
+    globe
+      .polygonsData(countries.features.filter(d => d.properties.ISO_A2 !== 'AQ'))
+      .polygonCapColor(() => 'rgba(138,180,248,0.04)')
+      .polygonSideColor(() => 'rgba(138,180,248,0.08)')
+      .polygonStrokeColor(() => 'rgba(138,180,248,0.25)')
+      .polygonAltitude(0.005);
+  });
 
 let markersById = {};
 
@@ -45,7 +67,7 @@ async function loadMarkers() {
     .pointsData(markers)
     .pointLat('lat')
     .pointLng('lng')
-    .pointColor(() => '#8ab4f8')
+    .pointColor(m => markerColor(m.id))
     .pointAltitude(0.012)
     .pointRadius(0.35);
 }
@@ -288,7 +310,7 @@ async function sharePost(postId) {
   const url = `${window.location.origin}/post/${postId}`;
   if (navigator.share) {
     try {
-      await navigator.share({ title: 'Resonance', url });
+      await navigator.share({ title: 'Echoes of the Earth', url });
     } catch (e) { /* user cancelled */ }
   } else {
     await navigator.clipboard.writeText(url);

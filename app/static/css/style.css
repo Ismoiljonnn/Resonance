@@ -52,8 +52,9 @@ body{
 }
 .brand-name{
   font-family:var(--font-display);
-  font-weight:500;font-size:20px;
+  font-weight:500;font-size:18px;
   letter-spacing:-0.01em;
+  white-space:nowrap;
 }
 
 #topbar-actions{display:flex;align-items:center;gap:10px;position:relative;}
@@ -191,7 +192,7 @@ body{
   position:relative;
   box-shadow:var(--elev-4);
   animation:slideUp .18s cubic-bezier(.2,.8,.2,1);
-  max-height:86vh;overflow-y:auto;
+  max-height:86vh;overflow-y:auto;overflow-x:hidden;
 }
 @keyframes slideUp{
   from{opacity:0;transform:translateY(10px) scale(.99);}
@@ -245,13 +246,15 @@ body{
 .joined-row{display:flex;align-items:center;gap:5px;margin-top:2px;}
 .joined-row svg{flex-shrink:0;opacity:.7;}
 
-.posts-list{display:flex;flex-direction:column;gap:10px;margin-top:14px;max-height:240px;overflow-y:auto;}
+.posts-list{display:flex;flex-direction:column;gap:10px;margin-top:14px;max-height:240px;overflow-y:auto;overflow-x:hidden;}
 .posts-list audio{width:100%;height:36px;}
 .post-text-bubble{
   background:var(--surface-2);
   border:1px solid var(--border);
   padding:12px 14px;border-radius:var(--radius-sm);
   font-size:14px;line-height:1.5;
+  word-wrap:break-word;overflow-wrap:break-word;
+  white-space:normal;
 }
 
 .edit-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
