@@ -419,10 +419,12 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   if (body.dataset.openRecorder === '1') {
     openRecorderModal();
+    history.replaceState(null, '', window.location.pathname);
   }
 
   if (body.dataset.openPost) {
     openSinglePost(body.dataset.openPost);
+    history.replaceState(null, '', window.location.pathname);
   }
 });
 
@@ -504,4 +506,10 @@ function hideModal(id) { document.getElementById(id).classList.add('hidden'); }
 
 document.querySelectorAll('[data-close]').forEach(btn => {
   btn.addEventListener('click', () => hideModal(btn.dataset.close));
+});
+
+document.querySelectorAll('.modal').forEach(modal => {
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) hideModal(modal.id);
+  });
 });
