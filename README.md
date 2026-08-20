@@ -2,7 +2,7 @@
 
 A social voice map. Users leave short voice or text notes pinned to a 3D globe, creating a living, worldwide conversation layered on top of the real world.
 
-This is a learning project. I built it to practice full-stack development (Flask + PostgreSQL + vanilla JS + 3D rendering) by combining a social app, a voice recorder, and an interactive globe into one. It started as a hackathon build and I kept extending it afterwards on my own to learn more. It placed at my 3rd hackathon.
+This is a learning project. I built it to practice full-stack development (Flask + PostgreSQL + vanilla JS + 3D rendering) by combining a social app, a voice recorder, and an interactive globe into one. The idea came to me and I just started building it — no planning, no waiting, just code.
 
 It is not a polished, maintained product — expect rough edges, and read the code with that in mind.
 
