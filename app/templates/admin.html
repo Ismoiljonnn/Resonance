@@ -159,6 +159,7 @@ document.querySelectorAll('.admin-tab').forEach(tab => {
     tab.classList.add('active');
     document.getElementById('adminUsers').classList.toggle('hidden', tab.dataset.tab !== 'users');
     document.getElementById('adminPosts').classList.toggle('hidden', tab.dataset.tab !== 'posts');
+    if (tab.dataset.tab === 'posts') loadPosts(document.getElementById('postsSearch').value.trim());
   });
 });
 
@@ -174,6 +175,7 @@ document.getElementById('postsSearch').addEventListener('input', (e) => {
 
 loadStats();
 loadUsers();
+loadPosts();
 </script>
 </body>
 </html>
