@@ -24,7 +24,7 @@ class User(db.Model, UserMixin):
 
     # Profile fields filled in by the user themselves
     username = db.Column(db.String(80), unique=True, nullable=True)
-    bio = db.Column(db.String(100), nullable=True)
+    bio = db.Column(db.String(200), nullable=True)
     location_city = db.Column(db.String(120), nullable=True)
     location_country = db.Column(db.String(120), nullable=True)
 

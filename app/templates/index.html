@@ -137,21 +137,21 @@
     <!-- Edit view (my profile only) -->
     <div id="pf-edit" class="hidden">
       <label class="field-label">Username</label>
-      <input id="edit-username" maxlength="80" placeholder="username">
+      <input id="edit-username" maxlength="80" placeholder="username" autocomplete="new-password">
       <label class="field-label">Bio</label>
-      <input id="edit-bio" maxlength="100" placeholder="e.g. Frontend developer | Tashkent">
+      <input id="edit-bio" maxlength="200" placeholder="e.g. Frontend developer | Tashkent" autocomplete="new-password">
       <label class="field-label">Country</label>
       <select id="edit-country"></select>
       <label class="field-label">City <span class="optional">(optional)</span></label>
-      <input id="edit-city" maxlength="120" placeholder="e.g. Tashkent">
+      <input id="edit-city" maxlength="120" placeholder="e.g. Tashkent" autocomplete="new-password">
       <label class="field-label">Telegram</label>
-      <input id="edit-telegram" placeholder="username">
+      <input id="edit-telegram" placeholder="username" autocomplete="new-password">
       <label class="field-label">GitHub</label>
-      <input id="edit-github" placeholder="username">
+      <input id="edit-github" placeholder="username" autocomplete="new-password">
       <label class="field-label">Instagram</label>
-      <input id="edit-instagram" placeholder="username">
+      <input id="edit-instagram" placeholder="username" autocomplete="new-password">
       <label class="field-label">Website <span class="optional">(optional)</span></label>
-      <input id="edit-website" placeholder="yoursite.com">
+      <input id="edit-website" placeholder="yoursite.com" autocomplete="new-password">
       <div class="edit-actions">
         <button id="cancelEditBtn" class="btn-text">Cancel</button>
         <button id="saveEditBtn" class="btn-primary">Save</button>
@@ -190,22 +190,22 @@
     <div id="profileFillStep">
       <p class="muted">This is shown to others on the map. Your region places you on the globe — there's no need to drop a pin yourself.</p>
       <label class="field-label">Username</label>
-      <input id="in-username" placeholder="username" maxlength="80">
+      <input id="in-username" placeholder="username" maxlength="80" autocomplete="new-password">
       <label class="field-label">Bio</label>
-      <input id="in-bio" placeholder="e.g. Frontend developer | Tashkent" maxlength="100">
+      <input id="in-bio" placeholder="e.g. Frontend developer | Tashkent" maxlength="200" autocomplete="new-password">
       <label class="field-label">Country</label>
       <select id="in-country"></select>
       <label class="field-label">City <span class="optional">(optional)</span></label>
-      <input id="in-city" placeholder="e.g. Tashkent">
+      <input id="in-city" placeholder="e.g. Tashkent" autocomplete="new-password">
       <div class="field-group-label">Social links <span class="optional">(optional)</span></div>
       <label class="field-label">Telegram</label>
-      <input id="in-telegram" placeholder="username">
+      <input id="in-telegram" placeholder="username" autocomplete="new-password">
       <label class="field-label">GitHub</label>
-      <input id="in-github" placeholder="username">
+      <input id="in-github" placeholder="username" autocomplete="new-password">
       <label class="field-label">Instagram</label>
-      <input id="in-instagram" placeholder="username">
+      <input id="in-instagram" placeholder="username" autocomplete="new-password">
       <label class="field-label">Website <span class="optional">(optional)</span></label>
-      <input id="in-website" placeholder="yoursite.com">
+      <input id="in-website" placeholder="yoursite.com" autocomplete="new-password">
       <button id="saveProfileBtn" class="btn-primary full-width">Save and continue</button>
     </div>
 
@@ -244,7 +244,7 @@
     </div>
     <div class="search-input-wrap">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      <input id="searchInput" type="text" placeholder="Search by name or username..." maxlength="80" autocomplete="off" autocorrect="off" spellcheck="false">
+      <input id="searchInput" type="text" placeholder="Search by name or username..." maxlength="80" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
     <div id="searchResults" class="search-results"></div>
   </div>
