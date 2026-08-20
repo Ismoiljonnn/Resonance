@@ -37,7 +37,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
   .modal-content{padding:16px;width:96vw;border-radius:16px;}
   .modal-content h3{font-size:16px;padding-right:32px;}
   .modal-content h2{font-size:16px;padding-right:32px;}
-  .close-btn{width:26px;height:26px;font-size:14px;top:10px;right:10px;}
+  .close-btn{width:26px;height:26px;font-size:14px;}
 
   /* Profile */
   .profile-header{gap:10px;margin-bottom:12px;}

@@ -430,12 +430,15 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 function openRecorderModal() {
   showModal('recorderModal');
+  const title = document.getElementById('recorder-title');
   if (currentUser && currentUser.username && currentUser.bio && currentUser.location_country) {
     document.getElementById('profileFillStep').classList.add('hidden');
     document.getElementById('postTypeStep').classList.remove('hidden');
+    title.textContent = 'Share your thought';
   } else {
     document.getElementById('profileFillStep').classList.remove('hidden');
     document.getElementById('postTypeStep').classList.add('hidden');
+    title.textContent = 'Set up your profile';
     if (currentUser) {
       document.getElementById('in-username').value = currentUser.username || '';
       document.getElementById('in-bio').value = currentUser.bio || '';

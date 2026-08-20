@@ -194,7 +194,6 @@ body{
   border:1px solid var(--border);
   border-radius:var(--radius-lg);
   padding:28px;width:420px;max-width:90vw;
-  position:relative;
   box-shadow:var(--elev-4);
   animation:slideUp .18s cubic-bezier(.2,.8,.2,1);
   max-height:92vh;overflow-y:auto;overflow-x:hidden;
@@ -206,16 +205,20 @@ body{
 }
 
 .close-btn{
-  position:absolute;top:12px;right:12px;z-index:2;
   background:rgba(255,255,255,0.06);border:none;
   width:30px;height:30px;border-radius:50%;
   color:var(--text-muted);font-size:16px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
-  transition:background .15s, color .15s;
+  transition:background .15s, color .15s;flex-shrink:0;
 }
 .close-btn:hover{background:rgba(255,255,255,0.12);color:var(--text);}
 
-.modal-content h2,.modal-content h3{font-family:var(--font-display);font-weight:500;padding-right:40px;}
+.modal-top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.modal-top-row h3{margin:0;}
+
+.profile-header-actions{display:flex;align-items:center;gap:8px;margin-left:auto;}
+
+.modal-content h2,.modal-content h3{font-family:var(--font-display);font-weight:500;}
 .modal-content h3{font-size:19px;margin-bottom:6px;}
 
 /* ===== Profile page ===== */

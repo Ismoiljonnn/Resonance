@@ -69,7 +69,6 @@
 <!-- Profile page: same modal renders both "my profile" (editable) and a stranger's profile (read-only) -->
 <div id="profileModal" class="modal hidden">
   <div class="modal-content profile-card">
-    <button class="close-btn" data-close="profileModal">&times;</button>
 
     <div class="profile-header">
       <img id="pf-avatar" class="avatar-lg" src="" alt="">
@@ -81,7 +80,10 @@
           <span id="pf-location-text"></span>
         </p>
       </div>
-      <button id="editProfileBtn" class="btn-outline hidden">Edit profile</button>
+      <div class="profile-header-actions">
+        <button id="editProfileBtn" class="btn-outline hidden">Edit profile</button>
+        <button class="close-btn" data-close="profileModal">&times;</button>
+      </div>
     </div>
 
     <!-- Read view -->
@@ -128,7 +130,10 @@
 <!-- Sign-in modal -->
 <div id="authModal" class="modal hidden">
   <div class="modal-content auth-card">
-    <button class="close-btn" data-close="authModal">&times;</button>
+    <div class="modal-top-row">
+      <div></div>
+      <button class="close-btn" data-close="authModal">&times;</button>
+    </div>
     <div class="auth-mark">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9z" stroke="currentColor" stroke-width="2"/></svg>
     </div>
@@ -144,10 +149,12 @@
 <!-- Onboarding (region + profile) then post composer -->
 <div id="recorderModal" class="modal hidden">
   <div class="modal-content">
-    <button class="close-btn" data-close="recorderModal">&times;</button>
+    <div class="modal-top-row">
+      <h3 id="recorder-title">Set up your profile</h3>
+      <button class="close-btn" data-close="recorderModal">&times;</button>
+    </div>
 
     <div id="profileFillStep">
-      <h3>Set up your profile</h3>
       <p class="muted">This is shown to others on the map. Your region places you on the globe — there's no need to drop a pin yourself.</p>
       <label class="field-label">Username</label>
       <input id="in-username" placeholder="username" maxlength="80">
@@ -181,8 +188,10 @@
 <!-- Single post view (opened via share link) -->
 <div id="postModal" class="modal hidden">
   <div class="modal-content post-card">
-    <button class="close-btn" data-close="postModal">&times;</button>
-    <div id="post-author-row" class="profile-header small"></div>
+    <div class="modal-top-row">
+      <div id="post-author-row" class="profile-header small"></div>
+      <button class="close-btn" data-close="postModal">&times;</button>
+    </div>
     <div id="post-body"></div>
     <div class="post-actions">
       <button id="shareBtn" class="btn-secondary">
