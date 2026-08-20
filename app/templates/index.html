@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resonance — Ovozli Ijtimoiy Xarita</title>
+<meta name="description" content="Dunyo bo'ylab ovozli fikrlarni tinglang, o'z ovozingizni xaritaga qoldiring.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="https://unpkg.com/globe.gl"></script>
+</head>
+<body
+  data-open-recorder="{{ open_recorder or '' }}"
+  data-lat="{{ lat or '' }}"
+  data-lng="{{ lng or '' }}"
+  data-open-post="{{ open_post or '' }}"
+>
+
+<div id="globeViz"></div>
+<div id="globeGradient"></div>
+
+<!-- Yuqori panel -->
+<header id="topbar">
+  <div id="brand">
+    <span class="brand-dot"></span>
+    <span class="brand-name">Resonance</span>
+  </div>
+
+  <div id="topbar-actions">
+    <button id="recordTrigger" class="btn-primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 003-3V6a3 3 0 00-6 0v6a3 3 0 003 3z" stroke="currentColor" stroke-width="2"/><path d="M19 11a7 7 0 01-14 0M12 18v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Fikr qoldirish
+    </button>
+    <div id="userChip" class="hidden">
+      <img id="userAvatar" src="" alt="">
+      <span id="userName"></span>
+      <button id="logoutBtn" class="icon-btn" title="Chiqish">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div id="hint" class="hint-pill">Xaritada istalgan nuqtani bosib, o'sha yerga fikr qoldiring</div>
+
+<!-- Public Profile Card -->
+<div id="profileModal" class="modal hidden">
+  <div class="modal-content profile-card">
+    <button class="close-btn" data-close="profileModal">&times;</button>
+    <div class="profile-header">
+      <img id="pf-avatar" class="avatar-lg" src="" alt="">
+      <div>
+        <h2 id="pf-name"></h2>
+        <p id="pf-username" class="muted"></p>
+      </div>
+    </div>
+    <p id="pf-bio" class="pf-bio"></p>
+    <p id="pf-location" class="muted location-row"></p>
+    <div id="pf-links" class="links-row"></div>
+    <div class="stats-row">
+      <div><strong id="pf-listens">0</strong><span>eshitilish</span></div>
+      <div><strong id="pf-posts-count">0</strong><span>aktiv post</span></div>
+    </div>
+    <div id="pf-posts-list" class="posts-list"></div>
+  </div>
+</div>
+
+<!-- Lazy Auth modal -->
+<div id="authModal" class="modal hidden">
+  <div class="modal-content auth-card">
+    <button class="close-btn" data-close="authModal">&times;</button>
+    <div class="auth-icon">🌍</div>
+    <h3>Xaritada o'z ovozingizni qoldiring</h3>
+    <p class="muted">Google orqali bir marta kiring — keyin har doim shu joyda tanilasiz.</p>
+    <a id="googleLoginBtn" class="google-btn" href="#">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 01-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.36 0-4.36-1.6-5.07-3.74H.9v2.33A9 9 0 009 18z"/><path fill="#FBBC05" d="M3.93 10.68a5.4 5.4 0 010-3.36V5H.9a9 9 0 000 8l3.03-2.32z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 00.9 5l3.03 2.32C4.64 5.18 6.64 3.58 9 3.58z"/></svg>
+      Continue with Google
+    </a>
+  </div>
+</div>
+
+<!-- Profil to'ldirish + post yaratish -->
+<div id="recorderModal" class="modal hidden">
+  <div class="modal-content">
+    <button class="close-btn" data-close="recorderModal">&times;</button>
+
+    <div id="profileFillStep">
+      <h3>Profilingizni to'ldiring</h3>
+      <p class="muted">Bu ma'lumot xaritada boshqalarga ko'rinadi</p>
+      <input id="in-username" placeholder="Username" maxlength="80">
+      <input id="in-bio" placeholder="Bio, masalan: Frontend dev | Tashkent" maxlength="280">
+      <input id="in-telegram" placeholder="Telegram (t.me/...)">
+      <input id="in-github" placeholder="GitHub (github.com/...)">
+      <input id="in-instagram" placeholder="Instagram">
+      <button id="saveProfileBtn" class="btn-primary full-width">Saqlash va davom etish</button>
+    </div>
+
+    <div id="postTypeStep" class="hidden">
+      <div class="tab-row">
+        <button id="tabAudio" class="tab-btn active">🎙 Ovoz</button>
+        <button id="tabText" class="tab-btn">✍️ Matn</button>
+      </div>
+
+      <div id="audioStep">
+        <p class="muted">Maksimal 15 soniya</p>
+        <div class="record-row">
+          <button id="recordBtn" class="btn-record">
+            <span class="rec-dot"></span> Yozishni boshlash
+          </button>
+          <span id="recordTimer">00:00</span>
+        </div>
+        <audio id="previewPlayer" controls class="hidden"></audio>
+        <button id="publishBtn" class="btn-primary full-width hidden">Xaritaga joylash</button>
+      </div>
+
+      <div id="textStep" class="hidden">
+        <textarea id="in-text-post" placeholder="Fikringizni yozing... (max 500 belgi)" maxlength="500" rows="5"></textarea>
+        <button id="publishTextBtn" class="btn-primary full-width">Xaritaga joylash</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bitta postni ko'rish (share link ochilganda) -->
+<div id="postModal" class="modal hidden">
+  <div class="modal-content post-card">
+    <button class="close-btn" data-close="postModal">&times;</button>
+    <div id="post-author-row" class="profile-header small"></div>
+    <div id="post-body"></div>
+    <div id="post-reactions" class="reactions-row"></div>
+    <div class="post-actions">
+      <button id="shareBtn" class="btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 12v7a2 2 0 002 2h12a2 2 0 002-2v-7M16 6l-4-4-4 4M12 2v14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Ulashish
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
