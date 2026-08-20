@@ -516,3 +516,42 @@ document.querySelectorAll('.modal').forEach(modal => {
     if (e.target === modal) hideModal(modal.id);
   });
 });
+
+// ============ Search ============
+document.getElementById('searchTrigger').addEventListener('click', () => {
+  showModal('searchModal');
+  const input = document.getElementById('searchInput');
+  input.value = '';
+  document.getElementById('searchResults').innerHTML = '<div class="search-empty">Type to search users</div>';
+  input.focus();
+});
+
+let searchTimer = null;
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  clearTimeout(searchTimer);
+  const q = e.target.value.trim();
+  const box = document.getElementById('searchResults');
+  if (!q) { box.innerHTML = '<div class="search-empty">Type to search users</div>'; return; }
+  box.innerHTML = '<div class="search-empty">Searching...</div>';
+  searchTimer = setTimeout(async () => {
+    const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+    const users = await res.json();
+    if (!users.length) { box.innerHTML = '<div class="search-empty">No users found</div>'; return; }
+    box.innerHTML = users.map(u => `
+      <div class="search-user-card" data-user-id="${u.id}">
+        <img src="${u.avatar_url || ''}" alt="">
+        <div class="search-user-info">
+          <div class="name">${u.full_name || ''}</div>
+          <div class="username">${u.username ? '@' + u.username : ''}</div>
+          ${u.bio ? `<div class="bio">${u.bio}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
+    box.querySelectorAll('.search-user-card').forEach(card => {
+      card.addEventListener('click', () => {
+        hideModal('searchModal');
+        openProfileCard(card.dataset.userId);
+      });
+    });
+  }, 300);
+});

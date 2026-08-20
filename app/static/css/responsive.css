@@ -63,6 +63,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
   .post-bubble-row{gap:6px;}
   .post-delete-btn svg{width:14px;height:14px;}
 
+  /* Search */
+  .btn-round{width:34px;height:34px;}
+  .btn-round svg{width:16px;height:16px;}
+  .search-results{grid-template-columns:1fr;max-height:280px;}
+  .search-user-card img{width:34px;height:34px;}
+
   /* Form fields */
   .field-label{font-size:11px;margin:12px 0 6px;}
   .field-label:first-of-type{margin-top:4px;}
@@ -165,6 +171,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
 
   .modal-content{padding:24px;width:460px;max-width:88vw;border-radius:22px;}
   .modal-content.profile-card{width:100%;max-width:88vw;}
+  .modal-content.search-card{width:100%;max-width:88vw;}
 
   .avatar-lg{width:64px;height:64px;}
   #pf-name{font-size:18px;}
@@ -179,6 +186,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
 
   .modal-content{width:440px;}
   .modal-content.profile-card{width:820px;max-width:90vw;}
+  .modal-content.search-card{width:820px;max-width:90vw;}
   .posts-list{max-height:400px;}
 }
 
@@ -188,6 +196,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
 @media (min-width:1440px){
   .modal-content{width:460px;}
   .modal-content.profile-card{width:820px;}
+  .modal-content.search-card{width:820px;}
   .posts-list{max-height:520px;}
 }
 

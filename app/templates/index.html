@@ -31,6 +31,10 @@
       Share a thought
     </button>
 
+    <button id="searchTrigger" class="btn-round" title="Search users">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+
     <button id="loginBtn" class="btn-outline">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Login
@@ -200,6 +204,21 @@
         Share
       </button>
     </div>
+  </div>
+</div>
+
+<!-- Search modal -->
+<div id="searchModal" class="modal hidden">
+  <div class="modal-content search-card">
+    <div class="modal-top-row">
+      <h3>Search users</h3>
+      <button class="close-btn" data-close="searchModal">&times;</button>
+    </div>
+    <div class="search-input-wrap">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input id="searchInput" type="text" placeholder="Search by name or username..." maxlength="80" autocomplete="off">
+    </div>
+    <div id="searchResults" class="search-results"></div>
   </div>
 </div>
 

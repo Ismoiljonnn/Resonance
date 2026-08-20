@@ -129,3 +129,23 @@ def delete_audio(post_id):
 def my_posts():
     posts = current_user.audio_posts.order_by(AudioPost.created_at.desc()).all()
     return jsonify([p.to_dict(current_user.id) for p in posts])
+
+
+@api_bp.route("/search")
+def search_users():
+    q = (request.args.get("q") or "").strip()
+    if len(q) < 1:
+        return jsonify([])
+    like = f"%{q}%"
+    users = User.query.filter(
+        User.username.ilike(like) | User.full_name.ilike(like)
+    ).limit(30).all()
+    return jsonify([{
+        "id": u.id,
+        "full_name": u.full_name,
+        "username": u.username,
+        "avatar_url": u.avatar_url,
+        "bio": u.bio,
+        "location_city": u.location_city,
+        "location_country": u.location_country,
+    } for u in users])
