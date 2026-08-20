@@ -30,6 +30,13 @@ def get_public_profile(user_id):
     return jsonify(user.to_public_dict(viewer_id))
 
 
+@api_bp.route("/profile/by-username/<username>")
+def get_profile_by_username(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    viewer_id = current_user.id if current_user.is_authenticated else None
+    return jsonify(user.to_public_dict(viewer_id))
+
+
 @api_bp.route("/post/<post_id>")
 def get_single_post(post_id):
     """Used when a share link is opened directly — no login required to view"""

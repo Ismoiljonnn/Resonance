@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resonance — Profile</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%231a1a2e' stroke='%238ab4f8' stroke-width='4'/><ellipse cx='50' cy='50' rx='20' ry='44' fill='none' stroke='%238ab4f8' stroke-width='2.5' opacity='.6'/><ellipse cx='50' cy='50' rx='44' ry='20' fill='none' stroke='%238ab4f8' stroke-width='2.5' opacity='.6'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+</head>
+<body>
+
+<header id="topbar">
+  <div id="brand">
+    <svg class="brand-icon" width="28" height="28" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#1a1a2e" stroke="#8ab4f8" stroke-width="4"/><ellipse cx="50" cy="50" rx="20" ry="44" fill="none" stroke="#8ab4f8" stroke-width="2.5" opacity=".6"/><ellipse cx="50" cy="50" rx="44" ry="20" fill="none" stroke="#8ab4f8" stroke-width="2.5" opacity=".6"/></svg>
+    <span class="brand-name">Resonance</span>
+  </div>
+  <div id="topbar-actions">
+    <a href="/" class="btn-outline" style="text-decoration:none">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to map
+    </a>
+  </div>
+</header>
+
+<main class="profile-main">
+  <div class="profile-page-card">
+    <div class="profile-page-header">
+      <img id="pp-avatar" class="pp-avatar" src="" alt="">
+      <div class="pp-info">
+        <h2 id="pp-name"></h2>
+        <p id="pp-username" class="pp-muted"></p>
+        <p id="pp-location" class="pp-muted pp-location">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
+          <span id="pp-location-text"></span>
+        </p>
+      </div>
+      <div class="pp-actions">
+        <button id="ppEditBtn" class="btn-outline hidden">Edit profile</button>
+      </div>
+    </div>
+
+    <p id="pp-bio" class="pp-bio"></p>
+    <div id="pp-links" class="pp-links"></div>
+    <p id="pp-joined" class="pp-muted pp-joined">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span id="pp-joined-text"></span>
+    </p>
+
+    <div class="pp-stats">
+      <button class="pp-stats-tab active" data-tab="active"><strong id="pp-active-count">0</strong> <span>Active posts</span></button>
+      <button class="pp-stats-tab" data-tab="total"><strong id="pp-total-count">0</strong> <span>Total posts</span></button>
+    </div>
+    <div id="pp-posts" class="pp-posts"></div>
+  </div>
+
+  <!-- Edit form (hidden by default) -->
+  <div id="pp-edit" class="profile-page-card hidden">
+    <label class="field-label">Username</label>
+    <input id="edit-username" maxlength="80" placeholder="username" autocomplete="new-password">
+    <label class="field-label">Bio</label>
+    <input id="edit-bio" maxlength="200" placeholder="bio" autocomplete="new-password">
+    <label class="field-label">Country</label>
+    <select id="edit-country"></select>
+    <label class="field-label">City <span class="optional">(optional)</span></label>
+    <input id="edit-city" maxlength="120" placeholder="city" autocomplete="new-password">
+    <label class="field-label">Telegram</label>
+    <input id="edit-telegram" placeholder="username" autocomplete="new-password">
+    <label class="field-label">GitHub</label>
+    <input id="edit-github" placeholder="username" autocomplete="new-password">
+    <label class="field-label">Instagram</label>
+    <input id="edit-instagram" placeholder="username" autocomplete="new-password">
+    <label class="field-label">Website <span class="optional">(optional)</span></label>
+    <input id="edit-website" placeholder="yoursite.com" autocomplete="new-password">
+    <div class="edit-actions">
+      <button id="ppCancelEdit" class="btn-text">Cancel</button>
+      <button id="ppSaveEdit" class="btn-primary">Save</button>
+    </div>
+  </div>
+</main>
+
+<div id="toast" class="toast hidden"></div>
+
+<script>
+let profileData = null;
+let currentUser = null;
+let activePosts = [];
+let allPosts = [];
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 3000);
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function extractUsername(url, domain) {
+  if (!url) return '';
+  if (url.startsWith('http')) {
+    try {
+      const path = new URL(url).pathname.replace(/^\/+/, '').replace(/^@+/, '');
+      return path || url;
+    } catch { return url; }
+  }
+  return url.replace(/^@+/, '');
+}
+
+function buildUrl(username, domain) {
+  if (!username) return '';
+  username = username.trim().replace(/^@+/, '');
+  if (username.startsWith('http://') || username.startsWith('https://')) return username;
+  return 'https://' + domain + username;
+}
+
+function populateCountrySelect(el) {
+  const countries = [
+    ["Algeria",28.0339,1.6596],["Argentina",-38.4161,-63.6167],["Armenia",40.0691,45.0382],
+    ["Australia",-25.2744,133.7751],["Austria",47.5162,14.5501],["Azerbaijan",40.1431,47.5769],
+    ["Bangladesh",23.6850,90.3563],["Belgium",50.5039,4.4699],["Brazil",-14.2350,-51.9253],
+    ["Canada",56.1304,-106.3468],["Chile",-35.6751,-71.5430],["China",35.8617,104.1954],
+    ["Colombia",4.5709,-74.2973],["Cuba",21.5218,-77.7812],["Denmark",56.2639,9.5018],
+    ["Egypt",26.8206,30.8025],["Ethiopia",9.1450,40.4897],["Finland",61.9241,25.7482],
+    ["France",46.2276,2.2137],["Georgia",42.3154,43.3569],["Germany",51.1657,10.4515],
+    ["Ghana",7.9465,-1.0232],["Greece",39.0742,21.8243],["India",20.5937,78.9629],
+    ["Indonesia",-0.7893,113.9213],["Iran",32.4279,53.6880],["Iraq",33.2232,43.6793],
+    ["Ireland",53.4129,-8.2439],["Israel",31.0461,34.8516],["Italy",41.8719,12.5674],
+    ["Japan",36.2048,138.2529],["Kazakhstan",48.0196,66.9237],["Kenya",-0.0236,37.9062],
+    ["Kyrgyzstan",41.2044,74.7661],["Malaysia",4.2105,101.9758],["Mexico",23.6345,-102.5528],
+    ["Mongolia",46.8625,103.8467],["Morocco",31.7917,-7.0926],["Netherlands",52.1326,5.2913],
+    ["New Zealand",-40.9006,174.8860],["Nigeria",9.0820,8.6753],["North Korea",40.3399,127.5101],
+    ["Norway",60.4720,8.4689],["Pakistan",30.3753,69.3451],["Peru",-9.1900,-75.0152],
+    ["Philippines",12.8797,121.7740],["Poland",51.9194,19.1451],["Portugal",39.3999,-8.2245],
+    ["Qatar",25.3548,51.1839],["Russia",61.5240,105.3188],["Saudi Arabia",23.8859,45.0792],
+    ["Singapore",1.3521,103.8198],["South Africa",-30.5595,22.9375],["South Korea",35.9078,127.7669],
+    ["Spain",40.4637,-3.7492],["Sri Lanka",7.8731,80.7718],["Sweden",60.1282,18.6435],
+    ["Switzerland",46.8182,8.2275],["Tajikistan",38.8610,71.2761],["Thailand",15.8700,100.9925],
+    ["Turkey",38.9637,35.2433],["Turkmenistan",38.9697,59.5563],["Ukraine",48.3794,31.1656],
+    ["United Arab Emirates",23.4241,53.8478],["United Kingdom",55.3781,-3.4360],
+    ["United States",39.8283,-98.5795],["Uruguay",-32.5228,-55.7658],["Uzbekistan",41.3775,64.5853],
+    ["Venezuela",6.4238,-66.5897],["Vietnam",14.0583,108.2772],["Other",20,10]
+  ];
+  el.innerHTML = '<option value="">Select a country…</option>' +
+    countries.map(([n]) => `<option value="${n}">${n}</option>`).join('');
+}
+
+function renderPosts(posts, isOwn) {
+  const box = document.getElementById('pp-posts');
+  box.innerHTML = '';
+  if (!posts.length) {
+    box.innerHTML = '<div class="pp-empty">No posts yet</div>';
+    return;
+  }
+  posts.forEach(p => {
+    const d = new Date(p.created_at);
+    const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      + ' · ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+    box.innerHTML += `
+      <div class="pp-post-card">
+        <div class="pp-post-text">${escapeHtml(p.text_content || '')}</div>
+        <div class="pp-post-date">${dateStr}</div>
+      </div>`;
+  });
+}
+
+function showReadMode() {
+  document.getElementById('pp-edit').classList.add('hidden');
+  document.querySelector('.profile-page-card').classList.remove('hidden');
+}
+
+function showEditMode() {
+  document.querySelector('.profile-page-card').classList.add('hidden');
+  document.getElementById('pp-edit').classList.remove('hidden');
+}
+
+function prefillEditForm(p) {
+  document.getElementById('edit-username').value = p.username || '';
+  document.getElementById('edit-bio').value = p.bio || '';
+  document.getElementById('edit-city').value = p.location_city || '';
+  populateCountrySelect(document.getElementById('edit-country'));
+  document.getElementById('edit-country').value = p.location_country || '';
+  const sl = p.social_links || {};
+  document.getElementById('edit-telegram').value = extractUsername(sl.telegram, 't.me/');
+  document.getElementById('edit-github').value = extractUsername(sl.github, 'github.com/');
+  document.getElementById('edit-instagram').value = extractUsername(sl.instagram, 'instagram.com/');
+  document.getElementById('edit-website').value = sl.website || '';
+}
+
+async function loadProfile() {
+  const username = '{{ username }}';
+  const meRes = await fetch('/auth/me');
+  const meData = await meRes.json();
+  if (meData.authenticated) currentUser = meData.user;
+
+  const res = await fetch(`/api/profile/by-username/${username}`);
+  if (!res.ok) {
+    document.querySelector('.profile-main').innerHTML = '<div class="pp-empty">User not found</div>';
+    return;
+  }
+  profileData = await res.json();
+
+  const isOwn = currentUser && currentUser.id === profileData.id;
+
+  document.getElementById('pp-avatar').src = profileData.avatar_url || '';
+  document.getElementById('pp-name').textContent = profileData.full_name;
+  document.getElementById('pp-username').textContent = profileData.username ? '@' + profileData.username : '';
+  document.getElementById('pp-location-text').textContent =
+    [profileData.location_city, profileData.location_country].filter(Boolean).join(', ') || 'Location not set';
+  document.getElementById('pp-bio').textContent = profileData.bio || '';
+  document.getElementById('pp-active-count').textContent = profileData.active_posts_count || 0;
+  document.getElementById('pp-total-count').textContent = profileData.total_posts_count || 0;
+
+  if (!isOwn && profileData.created_at) {
+    const d = new Date(profileData.created_at);
+    document.getElementById('pp-joined-text').textContent =
+      'Joined ' + d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  } else {
+    document.getElementById('pp-joined').classList.add('hidden');
+  }
+
+  const linksEl = document.getElementById('pp-links');
+  linksEl.innerHTML = '';
+  const linkLabels = { telegram: 'Telegram', github: 'GitHub', instagram: 'Instagram', portfolio: 'Portfolio', website: 'Website' };
+  Object.entries(profileData.social_links || {}).forEach(([key, url]) => {
+    if (!url) return;
+    const a = document.createElement('a');
+    a.href = url.startsWith('http') ? url : `https://${url}`;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = linkLabels[key] || key;
+    linksEl.appendChild(a);
+  });
+
+  activePosts = profileData.active_posts || [];
+  allPosts = profileData.all_posts || [];
+  renderPosts(activePosts, isOwn);
+
+  document.getElementById('ppEditBtn').classList.toggle('hidden', !isOwn);
+
+  document.querySelectorAll('.pp-stats-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.pp-stats-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderPosts(tab.dataset.tab === 'total' ? allPosts : activePosts, isOwn);
+    });
+  });
+
+  document.title = `Resonance — ${profileData.full_name}`;
+}
+
+document.getElementById('ppEditBtn').addEventListener('click', () => {
+  prefillEditForm(profileData);
+  showEditMode();
+});
+
+document.getElementById('ppCancelEdit').addEventListener('click', showReadMode);
+
+document.getElementById('ppSaveEdit').addEventListener('click', async () => {
+  const payload = {
+    username: document.getElementById('edit-username').value.trim(),
+    bio: document.getElementById('edit-bio').value.trim(),
+    location_country: document.getElementById('edit-country').value || null,
+    location_city: document.getElementById('edit-city').value.trim() || null,
+    social_links: {
+      telegram: buildUrl(document.getElementById('edit-telegram').value, 't.me/'),
+      github: buildUrl(document.getElementById('edit-github').value, 'github.com/'),
+      instagram: buildUrl(document.getElementById('edit-instagram').value, 'instagram.com/'),
+      website: document.getElementById('edit-website').value.trim(),
+    },
+  };
+  const res = await fetch('/api/profile', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+  if (!res.ok) {
+    const e = await res.json();
+    showToast(e.error || 'Failed to save');
+    return;
+  }
+  showToast('Profile saved');
+  window.location.reload();
+});
+
+loadProfile();
+</script>
+</body>
+</html>

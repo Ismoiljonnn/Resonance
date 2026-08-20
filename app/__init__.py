@@ -51,6 +51,10 @@ def create_app():
     def admin_page():
         return render_template("admin.html")
 
+    @main_bp.route("/<username>")
+    def user_profile(username):
+        return render_template("profile.html", username=username)
+
     app.register_blueprint(main_bp)
 
     with app.app_context():

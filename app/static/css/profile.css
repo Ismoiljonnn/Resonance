@@ -1,0 +1,100 @@
+html,body{overflow:auto;height:auto !important;}
+
+.profile-main{
+  max-width:640px;margin:80px auto 40px;padding:0 20px;
+}
+
+.profile-page-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-md);padding:24px;
+}
+
+.profile-page-header{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.pp-avatar{width:64px;height:64px;border-radius:50%;flex-shrink:0;background:var(--surface-2);}
+.pp-info{flex:1;min-width:0;}
+.pp-info h2{font-family:var(--font-display);font-weight:500;font-size:18px;margin:0;}
+.pp-muted{font-size:13px;color:var(--text-muted);margin:2px 0 0;}
+.pp-location{display:flex;align-items:center;gap:4px;}
+.pp-actions{flex-shrink:0;}
+
+.pp-bio{
+  font-size:14px;line-height:1.5;margin:0 0 14px;
+  word-wrap:break-word;overflow-wrap:break-word;white-space:normal;
+}
+
+.pp-links{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.pp-links a{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:999px;padding:6px 14px;
+  font-size:12px;color:var(--text-muted);text-decoration:none;
+  font-family:var(--font-display);transition:background .15s,color .15s;
+}
+.pp-links a:hover{background:var(--surface);color:var(--text);}
+
+.pp-joined{display:flex;align-items:center;gap:4px;font-size:13px;margin:0 0 16px;}
+
+.pp-stats{display:flex;gap:8px;margin-bottom:16px;border-top:1px solid var(--border);padding-top:16px;}
+.pp-stats-tab{
+  background:var(--surface-2);border:1px solid transparent;
+  border-radius:999px;padding:8px 16px;
+  color:var(--text-muted);font-size:13px;cursor:pointer;
+  font-family:var(--font-body);display:inline-flex;align-items:center;gap:6px;
+  transition:background .15s,color .15s;
+}
+.pp-stats-tab:hover{background:var(--surface);}
+.pp-stats-tab.active{background:var(--surface);color:var(--text);border-color:var(--border);}
+.pp-stats-tab strong{font-family:var(--font-display);font-weight:500;}
+
+.pp-posts{display:flex;flex-direction:column;gap:8px;}
+.pp-post-card{
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--radius-md);padding:14px;
+}
+.pp-post-text{
+  font-size:14px;line-height:1.5;
+  word-wrap:break-word;overflow-wrap:break-word;white-space:normal;
+}
+.pp-post-date{font-size:11px;color:var(--text-muted);margin-top:6px;}
+.pp-empty{text-align:center;color:var(--text-muted);padding:40px;font-size:14px;}
+
+.profile-page-card .field-label{font-size:12px;color:var(--text-muted);margin-bottom:4px;margin-top:14px;}
+.profile-page-card .field-label:first-child{margin-top:0;}
+.profile-page-card input,.profile-page-card select{
+  width:100%;background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--radius-md);padding:10px 14px;
+  font-size:14px;color:var(--text);font-family:var(--font-body);
+  outline:none;transition:border-color .2s;box-sizing:border-box;
+}
+.profile-page-card input:focus,.profile-page-card select:focus{border-color:var(--blue-600);}
+.profile-page-card input::placeholder{color:var(--text-muted);}
+.profile-page-card .optional{color:var(--text-muted);font-weight:400;}
+
+.edit-actions{display:flex;gap:8px;margin-top:20px;justify-content:flex-end;}
+.btn-text{
+  background:none;border:none;color:var(--text-muted);
+  padding:8px 16px;border-radius:999px;font-size:13px;cursor:pointer;
+  font-family:var(--font-display);
+}
+.btn-text:hover{color:var(--text);}
+.btn-primary{
+  background:var(--blue-600);border:none;color:#fff;
+  padding:8px 20px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;
+  font-family:var(--font-display);
+}
+.btn-primary:hover{background:var(--blue-700);}
+
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:999px;padding:10px 24px;font-size:13px;color:var(--text);
+  font-family:var(--font-display);z-index:9999;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+}
+
+@media(max-width:600px){
+  .profile-main{margin-top:60px;}
+  .profile-page-header{flex-wrap:wrap;}
+  .pp-avatar{width:48px;height:48px;}
+  .pp-info h2{font-size:16px;}
+}

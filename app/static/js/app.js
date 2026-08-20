@@ -436,7 +436,7 @@ document.addEventListener('click', () => document.getElementById('userMenu').cla
 
 document.getElementById('myProfileBtn').addEventListener('click', () => {
   document.getElementById('userMenu').classList.add('hidden');
-  if (currentUser) openProfileCard(currentUser.id);
+  if (currentUser && currentUser.username) window.location.href = '/' + currentUser.username;
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -463,7 +463,7 @@ document.addEventListener('click', () => {
 });
 document.getElementById('bbMyProfile').addEventListener('click', () => {
   document.getElementById('bbMenu').classList.add('hidden');
-  if (currentUser) openProfileCard(currentUser.id);
+  if (currentUser && currentUser.username) window.location.href = '/' + currentUser.username;
 });
 document.getElementById('bbLogout').addEventListener('click', () => {
   window.location.href = '/auth/logout';
@@ -595,7 +595,7 @@ function renderSearchResults(users) {
   const box = document.getElementById('searchResults');
   if (!users.length) { box.innerHTML = '<div class="search-empty">No users found</div>'; return; }
   box.innerHTML = users.map(u => `
-    <div class="search-user-card" data-user-id="${u.id}">
+    <div class="search-user-card" data-user-id="${u.id}" data-username="${u.username || ''}">
       <img src="${u.avatar_url || ''}" alt="">
       <div class="search-user-info">
         <div class="name">${u.full_name || ''}</div>
@@ -607,7 +607,7 @@ function renderSearchResults(users) {
   box.querySelectorAll('.search-user-card').forEach(card => {
     card.addEventListener('click', () => {
       hideModal('searchModal');
-      openProfileCard(card.dataset.userId);
+      if (card.dataset.username) window.location.href = '/' + card.dataset.username;
     });
   });
 }
