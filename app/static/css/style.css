@@ -160,6 +160,7 @@ body{
   box-shadow:var(--elev-3);
   max-width:340px;min-width:180px;
 }
+.hover-card-inner{position:relative;flex:1;min-width:0;}
 .hover-avatar{
   width:34px;height:34px;border-radius:50%;flex-shrink:0;
   background:var(--surface-2);
@@ -176,6 +177,16 @@ body{
 .hover-date{
   font-size:11px;color:var(--text-muted);opacity:.7;margin-top:3px;
 }
+.hover-delete{
+  position:absolute;top:6px;right:6px;
+  background:rgba(242,139,130,0.15);border:none;
+  width:28px;height:28px;border-radius:50%;
+  color:var(--danger);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+  pointer-events:auto;
+}
+.hover-delete:hover{background:rgba(242,139,130,0.3);}
 
 /* ===== Modals ===== */
 .modal{

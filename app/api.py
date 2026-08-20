@@ -1,3 +1,5 @@
+import random
+
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 
@@ -83,22 +85,26 @@ def create_text_post():
 
     data = request.get_json(force=True)
     text = (data.get("text") or "").strip()
-    lat = current_user.home_lat
-    lng = current_user.home_lng
+    base_lat = current_user.home_lat
+    base_lng = current_user.home_lng
 
     if not text:
         return jsonify({"error": "Text cannot be empty"}), 400
     if len(text) > 500:
         return jsonify({"error": "Text cannot exceed 500 characters"}), 400
-    if lat is None or lng is None:
+    if base_lat is None or base_lng is None:
         return jsonify({"error": "Set your region in your profile first"}), 400
+
+    spread = 0.5
+    lat = float(base_lat) + (random.random() - 0.5) * spread
+    lng = float(base_lng) + (random.random() - 0.5) * spread
 
     post = AudioPost(
         user_id=current_user.id,
         post_type="text",
         text_content=text,
-        lat=float(lat),
-        lng=float(lng),
+        lat=lat,
+        lng=lng,
     )
     db.session.add(post)
     db.session.commit()

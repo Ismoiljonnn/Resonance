@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Echoes of the Earth</title>
-<meta name="description" content="Hear the echoes of voices from every corner of the Earth, and leave your own on the map.">
+<title>Resonance</title>
+<meta name="description" content="Listen to voices and thoughts from around the world, and leave your own on the map.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
 <header id="topbar">
   <div id="brand">
     <span class="brand-dot"></span>
-    <span class="brand-name">Echoes of the Earth</span>
+    <span class="brand-name">Resonance</span>
   </div>
 
   <div id="topbar-actions">
@@ -51,12 +51,15 @@
 <!-- Hover preview: avatar on the left, note preview on the right -->
 <div id="hoverCard" class="hover-card hidden">
   <img id="hover-avatar" class="hover-avatar" src="" alt="">
-  <div class="hover-body">
+  <div class="hover-card-inner">
     <div id="hover-name" class="hover-name"></div>
     <div id="hover-city" class="hover-city"></div>
     <div id="hover-text" class="hover-text"></div>
     <div id="hover-date" class="hover-date"></div>
   </div>
+  <button id="hoverDeleteBtn" class="hover-delete hidden" title="Delete post">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
 </div>
 
 <!-- Profile page: same modal renders both "my profile" (editable) and a stranger's profile (read-only) -->
