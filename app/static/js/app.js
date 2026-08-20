@@ -27,6 +27,10 @@ const globe = Globe()(document.getElementById('globeViz'))
   .onPointHover(handlePointHover)
   .onPointClick(handlePointClick);
 
+window.addEventListener('resize', () => {
+  globe.width(window.innerWidth).height(window.innerHeight);
+});
+
 fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
   .then(r => r.json())
   .then(countries => {
