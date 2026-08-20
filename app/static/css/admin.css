@@ -4,6 +4,8 @@
   font-family:var(--font-display);
 }
 
+html,body{overflow:auto;height:auto !important;}
+
 .admin-main{
   max-width:960px;margin:80px auto 40px;padding:0 20px;
 }
