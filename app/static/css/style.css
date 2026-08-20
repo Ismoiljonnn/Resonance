@@ -108,13 +108,14 @@ body{
 .btn-text:hover{background:rgba(138,180,248,0.08);}
 
 .btn-round{
-  background:var(--surface-2);border:1px solid var(--border);
-  width:38px;height:38px;border-radius:50%;
+  background:var(--surface);
+  border:1px solid var(--border);
+  width:42px;height:42px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   color:var(--text);cursor:pointer;
-  transition:background .15s,border-color .15s;
+  transition:background .15s ease;
 }
-.btn-round:hover{background:rgba(138,180,248,0.12);border-color:var(--blue);}
+.btn-round:hover{background:var(--surface-2);}
 
 .search-input-wrap{
   display:flex;align-items:center;gap:10px;
@@ -126,6 +127,7 @@ body{
   flex:1;background:none;border:none;outline:none;
   color:var(--text);font-size:14px;font-family:var(--font-body);
 }
+.search-input-wrap input:focus{outline:none;box-shadow:none;}
 .search-input-wrap input::placeholder{color:var(--text-muted);}
 
 .search-results{

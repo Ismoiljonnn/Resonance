@@ -64,7 +64,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
   .post-delete-btn svg{width:14px;height:14px;}
 
   /* Search */
-  .btn-round{width:34px;height:34px;}
+  .btn-round{width:36px;height:36px;}
   .btn-round svg{width:16px;height:16px;}
   .search-results{grid-template-columns:1fr;max-height:280px;}
   .search-user-card img{width:34px;height:34px;}

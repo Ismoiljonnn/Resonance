@@ -134,12 +134,13 @@ def my_posts():
 @api_bp.route("/search")
 def search_users():
     q = (request.args.get("q") or "").strip()
-    if len(q) < 1:
-        return jsonify([])
-    like = f"%{q}%"
-    users = User.query.filter(
-        User.username.ilike(like) | User.full_name.ilike(like)
-    ).limit(30).all()
+    if q:
+        like = f"%{q}%"
+        users = User.query.filter(
+            User.username.ilike(like) | User.full_name.ilike(like)
+        ).limit(50).all()
+    else:
+        users = User.query.limit(50).all()
     return jsonify([{
         "id": u.id,
         "full_name": u.full_name,
