@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from sqlalchemy.dialects.postgresql import UUID, JSONB
@@ -54,7 +54,12 @@ class User(db.Model, UserMixin):
 
     def to_public_dict(self, current_user_id=None):
         """What other users see on this user's public profile card"""
-        active_posts = self.audio_posts.filter_by(is_active=True).order_by(
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+        active_posts = self.audio_posts.filter(
+            AudioPost.is_active == True,
+            AudioPost.created_at >= cutoff,
+        ).order_by(AudioPost.created_at.desc()).all()
+        all_posts = self.audio_posts.filter_by(is_active=True).order_by(
             AudioPost.created_at.desc()
         ).all()
         total_count = self.audio_posts.count()
@@ -68,8 +73,10 @@ class User(db.Model, UserMixin):
             "location_country": self.location_country,
             "social_links": self.social_links or {},
             "total_posts_count": total_count,
+            "active_posts_count": len(active_posts),
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "active_posts": [p.to_dict(current_user_id) for p in active_posts],
+            "all_posts": [p.to_dict(current_user_id) for p in all_posts],
         }
 
 

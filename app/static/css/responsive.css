@@ -59,9 +59,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
   .links-row a{padding:5px 8px;font-size:11px;}
 
   /* Stats */
-  .stats-row{gap:16px;margin:10px 0;padding:8px 0;}
-  .stats-row strong{font-size:14px;}
-  .stats-row span{font-size:10px;}
+  .stats-row{gap:6px;margin:10px 0;padding:8px 0;}
+  .stats-tab{padding:5px 10px;font-size:12px;}
+  .stats-tab strong{font-size:13px;}
 
   /* Posts */
   .posts-list{gap:6px;max-height:200px;}
@@ -133,8 +133,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
   .pf-bio{font-size:12px;}
 
   .links-row a{padding:5px 10px;font-size:11px;}
-  .stats-row{gap:20px;}
-  .stats-row strong{font-size:15px;}
+  .stats-row{gap:8px;}
+  .stats-tab strong{font-size:14px;}
 
   .posts-list{gap:7px;max-height:220px;}
   .post-text-bubble{padding:9px 11px;font-size:12px;}

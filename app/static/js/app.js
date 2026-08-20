@@ -173,7 +173,7 @@ async function openProfileCard(userId) {
   document.getElementById('pf-location-text').textContent =
     [p.location_city, p.location_country].filter(Boolean).join(', ') || 'Location not set';
   document.getElementById('pf-bio').textContent = p.bio || '';
-  document.getElementById('pf-posts-count').textContent = (p.active_posts || []).length;
+  document.getElementById('pf-active-count').textContent = p.active_posts_count || 0;
   document.getElementById('pf-total-count').textContent = p.total_posts_count || 0;
 
   const joinedEl = document.getElementById('pf-joined');
@@ -199,22 +199,48 @@ async function openProfileCard(userId) {
     linksEl.appendChild(a);
   });
 
+  window._profileActivePosts = p.active_posts || [];
+  window._profileAllPosts = p.all_posts || [];
+
+  renderProfilePosts(window._profileActivePosts, isOwn);
+
+  document.querySelectorAll('.stats-tab').forEach(tab => {
+    tab.onclick = () => {
+      document.querySelectorAll('.stats-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const which = tab.dataset.tab === 'total' ? window._profileAllPosts : window._profileActivePosts;
+      renderProfilePosts(which, isOwn);
+    };
+  });
+  document.querySelector('.stats-tab[data-tab="active"]').classList.add('active');
+  document.querySelector('.stats-tab[data-tab="total"]').classList.remove('active');
+  const editBtn = document.getElementById('editProfileBtn');
+  editBtn.classList.toggle('hidden', !isOwn);
+  showProfileReadMode();
+
+  if (isOwn) prefillEditForm(p);
+
+  showModal('profileModal');
+}
+
+function renderProfilePosts(posts, isOwn) {
   const postsListEl = document.getElementById('pf-posts-list');
   postsListEl.innerHTML = '';
-  (p.active_posts || []).forEach(post => {
+  if (!posts.length) {
+    postsListEl.innerHTML = '<div class="search-empty">No posts yet</div>';
+    return;
+  }
+  posts.forEach(post => {
     const wrap = document.createElement('div');
     wrap.className = 'post-text-bubble';
-
     const row = document.createElement('div');
     row.className = 'post-bubble-row';
-
     const textEl = document.createElement('div');
     textEl.className = 'post-bubble-text';
     textEl.textContent = post.text_content;
     textEl.style.cursor = 'pointer';
     textEl.addEventListener('click', () => openSinglePost(post.id));
     row.appendChild(textEl);
-
     if (isOwn) {
       const delBtn = document.createElement('button');
       delBtn.className = 'post-delete-btn';
@@ -226,18 +252,9 @@ async function openProfileCard(userId) {
       });
       row.appendChild(delBtn);
     }
-
     wrap.appendChild(row);
     postsListEl.appendChild(wrap);
   });
-
-  const editBtn = document.getElementById('editProfileBtn');
-  editBtn.classList.toggle('hidden', !isOwn);
-  showProfileReadMode();
-
-  if (isOwn) prefillEditForm(p);
-
-  showModal('profileModal');
 }
 
 function showProfileReadMode() {
