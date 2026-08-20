@@ -1,10 +1,11 @@
 import random
 from datetime import datetime, timedelta, timezone
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_login import login_required, current_user
 
 from .models import db, User, AudioPost
+from .auth import is_admin
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -155,3 +156,78 @@ def search_users():
         "location_city": u.location_city,
         "location_country": u.location_country,
     } for u in users])
+
+
+# ---------- Admin routes ----------
+
+@api_bp.route("/admin/stats")
+@login_required
+def admin_stats():
+    if not is_admin(current_user):
+        return jsonify({"error": "Forbidden"}), 403
+    return jsonify({
+        "total_users": User.query.count(),
+        "total_posts": AudioPost.query.filter_by(is_active=True).count(),
+        "total_deleted": AudioPost.query.filter_by(is_active=False).count(),
+    })
+
+
+@api_bp.route("/admin/users")
+@login_required
+def admin_users():
+    if not is_admin(current_user):
+        return jsonify({"error": "Forbidden"}), 403
+    users = User.query.order_by(User.created_at.desc()).all()
+    return jsonify([{
+        "id": u.id,
+        "full_name": u.full_name,
+        "username": u.username,
+        "email": u.email,
+        "avatar_url": u.avatar_url,
+        "location_country": u.location_country,
+        "post_count": u.audio_posts.filter_by(is_active=True).count(),
+        "created_at": u.created_at.isoformat() if u.created_at else None,
+    } for u in users])
+
+
+@api_bp.route("/admin/posts")
+@login_required
+def admin_posts():
+    if not is_admin(current_user):
+        return jsonify({"error": "Forbidden"}), 403
+    posts = AudioPost.query.filter_by(is_active=True).order_by(
+        AudioPost.created_at.desc()
+    ).limit(200).all()
+    return jsonify([{
+        "id": p.id,
+        "text_content": p.text_content,
+        "post_type": p.post_type,
+        "created_at": p.created_at.isoformat() if p.created_at else None,
+        "author_name": p.author.full_name,
+        "author_id": p.author.id,
+    } for p in posts])
+
+
+@api_bp.route("/admin/post/<post_id>", methods=["DELETE"])
+@login_required
+def admin_delete_post(post_id):
+    if not is_admin(current_user):
+        return jsonify({"error": "Forbidden"}), 403
+    post = AudioPost.query.get_or_404(post_id)
+    post.is_active = False
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@api_bp.route("/admin/user/<user_id>", methods=["DELETE"])
+@login_required
+def admin_delete_user(user_id):
+    if not is_admin(current_user):
+        return jsonify({"error": "Forbidden"}), 403
+    user = User.query.get_or_404(user_id)
+    if user.id == current_user.id:
+        return jsonify({"error": "Cannot delete yourself"}), 400
+    AudioPost.query.filter_by(user_id=user.id).update({"is_active": False})
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({"ok": True})

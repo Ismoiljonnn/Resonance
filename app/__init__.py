@@ -59,6 +59,10 @@ def create_app():
             open_post=post_id,
         )
 
+    @main_bp.route("/admin")
+    def admin_page():
+        return render_template("admin.html")
+
     app.register_blueprint(main_bp)
 
     return app

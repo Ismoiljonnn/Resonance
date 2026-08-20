@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resonance — Admin</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%231a1a2e' stroke='%238ab4f8' stroke-width='4'/><ellipse cx='50' cy='50' rx='20' ry='44' fill='none' stroke='%238ab4f8' stroke-width='2.5' opacity='.6'/><ellipse cx='50' cy='50' rx='44' ry='20' fill='none' stroke='%238ab4f8' stroke-width='2.5' opacity='.6'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+
+<header id="topbar">
+  <div id="brand">
+    <svg class="brand-icon" width="28" height="28" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#1a1a2e" stroke="#8ab4f8" stroke-width="4"/><ellipse cx="50" cy="50" rx="20" ry="44" fill="none" stroke="#8ab4f8" stroke-width="2.5" opacity=".6"/><ellipse cx="50" cy="50" rx="44" ry="20" fill="none" stroke="#8ab4f8" stroke-width="2.5" opacity=".6"/></svg>
+    <span class="brand-name">Resonance</span>
+    <span class="admin-badge">Admin</span>
+  </div>
+  <div id="topbar-actions">
+    <a href="/" class="btn-outline">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to site
+    </a>
+  </div>
+</header>
+
+<main class="admin-main">
+  <div class="admin-stats" id="adminStats">
+    <div class="stat-card">
+      <div class="stat-number" id="statUsers">0</div>
+      <div class="stat-label">Users</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="statPosts">0</div>
+      <div class="stat-label">Active posts</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="statDeleted">0</div>
+      <div class="stat-label">Deleted posts</div>
+    </div>
+  </div>
+
+  <div class="admin-tabs">
+    <button class="admin-tab active" data-tab="users">Users</button>
+    <button class="admin-tab" data-tab="posts">Posts</button>
+  </div>
+
+  <div id="adminUsers" class="admin-panel"></div>
+  <div id="adminPosts" class="admin-panel hidden"></div>
+</main>
+
+<div id="toast" class="toast hidden"></div>
+
+<script>
+const isAdmin = true;
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  setTimeout(() => t.classList.add('hidden'), 3000);
+}
+
+async function loadStats() {
+  const res = await fetch('/api/admin/stats');
+  if (!res.ok) { window.location.href = '/'; return; }
+  const s = await res.json();
+  document.getElementById('statUsers').textContent = s.total_users;
+  document.getElementById('statPosts').textContent = s.total_posts;
+  document.getElementById('statDeleted').textContent = s.total_deleted;
+}
+
+async function loadUsers() {
+  const res = await fetch('/api/admin/users');
+  if (!res.ok) return;
+  const users = await res.json();
+  const box = document.getElementById('adminUsers');
+  if (!users.length) { box.innerHTML = '<div class="admin-empty">No users</div>'; return; }
+  box.innerHTML = '<div class="admin-list">' + users.map(u => `
+    <div class="admin-card">
+      <img class="admin-card-avatar" src="${u.avatar_url || ''}" alt="">
+      <div class="admin-card-info">
+        <div class="admin-card-name">${u.full_name || ''}</div>
+        <div class="admin-card-meta">${u.username ? '@'+u.username : ''} · ${u.email || ''}</div>
+        <div class="admin-card-meta">${u.location_country || ''} · ${u.post_count} posts</div>
+      </div>
+      <button class="btn-danger-sm" onclick="deleteUser('${u.id}')">Delete</button>
+    </div>
+  `).join('') + '</div>';
+}
+
+async function loadPosts() {
+  const res = await fetch('/api/admin/posts');
+  if (!res.ok) return;
+  const posts = await res.json();
+  const box = document.getElementById('adminPosts');
+  if (!posts.length) { box.innerHTML = '<div class="admin-empty">No posts</div>'; return; }
+  box.innerHTML = '<div class="admin-list">' + posts.map(p => `
+    <div class="admin-card">
+      <div class="admin-card-info">
+        <div class="admin-card-name">${p.author_name || ''}</div>
+        <div class="admin-card-text">${p.text_content || ''}</div>
+        <div class="admin-card-meta">${p.created_at ? new Date(p.created_at).toLocaleString() : ''}</div>
+      </div>
+      <button class="btn-danger-sm" onclick="deletePost('${p.id}')">Delete</button>
+    </div>
+  `).join('') + '</div>';
+}
+
+async function deleteUser(id) {
+  if (!confirm('Delete this user and all their posts?')) return;
+  const res = await fetch(`/api/admin/user/${id}`, { method: 'DELETE' });
+  if (res.ok) { showToast('User deleted'); loadUsers(); loadStats(); }
+  else { const e = await res.json(); showToast(e.error || 'Failed'); }
+}
+
+async function deletePost(id) {
+  if (!confirm('Delete this post?')) return;
+  const res = await fetch(`/api/admin/post/${id}`, { method: 'DELETE' });
+  if (res.ok) { showToast('Post deleted'); loadPosts(); loadStats(); }
+  else { showToast('Failed'); }
+}
+
+document.querySelectorAll('.admin-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('adminUsers').classList.toggle('hidden', tab.dataset.tab !== 'users');
+    document.getElementById('adminPosts').classList.toggle('hidden', tab.dataset.tab !== 'posts');
+  });
+});
+
+loadStats();
+loadUsers();
+</script>
+</body>
+</html>

@@ -17,6 +17,8 @@ class Config:
     GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
     GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 
+    ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "")
+
     SUPABASE_URL = os.environ.get("SUPABASE_URL")
     SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_KEY")
     SUPABASE_BUCKET = os.environ.get("SUPABASE_BUCKET", "audio-posts")

@@ -401,11 +401,13 @@ async function checkAuth() {
     document.getElementById('bbLogin').classList.add('hidden');
     document.getElementById('bbProfile').classList.remove('hidden');
     document.getElementById('bbAvatar').src = currentUser.avatar_url || '';
+    document.getElementById('adminBtn').classList.toggle('hidden', !data.is_admin);
   } else {
     document.getElementById('userChip').classList.add('hidden');
     document.getElementById('loginBtn').classList.remove('hidden');
     document.getElementById('bbLogin').classList.remove('hidden');
     document.getElementById('bbProfile').classList.add('hidden');
+    document.getElementById('adminBtn').classList.add('hidden');
   }
   return data;
 }

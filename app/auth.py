@@ -8,6 +8,11 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 oauth = OAuth()
 
 
+def is_admin(user):
+    admin_email = current_app.config.get("ADMIN_EMAIL", "")
+    return bool(admin_email) and user.email == admin_email
+
+
 def init_oauth(app):
     oauth.init_app(app)
     oauth.register(
@@ -87,5 +92,6 @@ def me():
             "authenticated": True,
             "user": current_user.to_public_dict(),
             "profile_complete": current_user.is_profile_complete,
+            "is_admin": is_admin(current_user),
         })
     return jsonify({"authenticated": False})
