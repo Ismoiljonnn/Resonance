@@ -45,11 +45,7 @@ body{
 #topbar > *{pointer-events:auto;}
 
 #brand{display:flex;align-items:center;gap:10px;}
-.brand-dot{
-  width:11px;height:11px;border-radius:50%;
-  background:var(--blue);
-  box-shadow:0 0 0 4px rgba(138,180,248,0.16);
-}
+.brand-icon{flex-shrink:0;}
 .brand-name{
   font-family:var(--font-display);
   font-weight:500;font-size:18px;

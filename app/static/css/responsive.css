@@ -14,7 +14,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
 
   /* Topbar */
   #topbar{padding:10px 12px;}
-  .brand-dot{width:8px;height:8px;box-shadow:0 0 0 3px rgba(138,180,248,0.16);}
+  .brand-icon{width:22px;height:22px;}
   .brand-name{font-size:15px;}
   #topbar-actions{gap:6px;}
 
@@ -215,7 +215,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
    ========================================================== */
 @media (max-height:500px) and (orientation:landscape){
   #topbar{padding:8px 16px;}
-  .brand-dot{width:8px;height:8px;}
+  .brand-icon{width:22px;height:22px;}
   .brand-name{font-size:15px;}
 
   .modal{align-items:flex-start;padding-top:8px;}
