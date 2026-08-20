@@ -8,7 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
 <script src="https://unpkg.com/globe.gl"></script>
 </head>
 <body data-open-recorder="{{ open_recorder or '' }}" data-open-post="{{ open_post or '' }}">
@@ -62,9 +63,7 @@
     <div id="hover-text" class="hover-text"></div>
     <div id="hover-date" class="hover-date"></div>
   </div>
-  <button id="hoverDeleteBtn" class="hover-delete hidden" title="Delete post">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  </button>
+
 </div>
 
 <!-- Profile page: same modal renders both "my profile" (editable) and a stranger's profile (read-only) -->
@@ -133,7 +132,7 @@
     <div class="auth-mark">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9z" stroke="currentColor" stroke-width="2"/></svg>
     </div>
-    <h3>Add your voice to the map</h3>
+    <h3>Sign in to the map</h3>
     <p class="muted">Sign in once with Google — you'll be recognized here from then on.</p>
     <a id="googleLoginBtn" class="google-btn" href="#">
       <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 01-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.36 0-4.36-1.6-5.07-3.74H.9v2.33A9 9 0 009 18z"/><path fill="#FBBC05" d="M3.93 10.68a5.4 5.4 0 010-3.36V5H.9a9 9 0 000 8l3.03-2.32z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 00.9 5l3.03 2.32C4.64 5.18 6.64 3.58 9 3.58z"/></svg>

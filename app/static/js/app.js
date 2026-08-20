@@ -123,31 +123,10 @@ function handlePointHover(point) {
   } else {
     dateEl.style.display = 'none';
   }
-  const delBtn = document.getElementById('hoverDeleteBtn');
-  if (currentUser && point.author_id === currentUser.id) {
-    delBtn.classList.remove('hidden');
-    delBtn.onclick = (e) => {
-      e.stopPropagation();
-      deletePostFromHover(point.id);
-    };
-  } else {
-    delBtn.classList.add('hidden');
-  }
   hoverCard.classList.remove('hidden');
   positionHoverCard();
 }
 
-async function deletePostFromHover(postId) {
-  if (!confirm('Delete this post?')) return;
-  const res = await fetch(`/api/audio/${postId}`, { method: 'DELETE' });
-  if (!res.ok) {
-    showToast('Failed to delete');
-    return;
-  }
-  hoverCard.classList.add('hidden');
-  showToast('Post deleted');
-  loadMarkers();
-}
 
 async function deleteProfilePost(postId, element) {
   if (!confirm('Delete this post?')) return;
