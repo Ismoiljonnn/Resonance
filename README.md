@@ -2,22 +2,48 @@
 
 A social voice map. Users leave short voice or text notes pinned to a 3D globe, creating a living, worldwide conversation layered on top of the real world.
 
-This is a learning project. I built it to practice full-stack development (Flask + PostgreSQL + vanilla JS + 3D rendering) by combining a social app, a voice recorder, and an interactive globe into one. The idea came to me and I just started building it — no planning, no waiting, just code.
+This is a learning project. I built it to practice full-stack development (Flask + PostgreSQL + vanilla JS + 3D rendering) by combining a social app, a voice recorder, and an interactive globe into one. I had the idea and started building it right away — driven by curiosity and the desire to see it work.
 
 It is not a polished, maintained product — expect rough edges, and read the code with that in mind.
 
 ## What it does
 
-- **3D Globe** — posts are rendered as colored markers on an interactive globe (globe.gl), placed at the user's country with per-post jitter so overlapping posts spread out.
-- **Voice & Text posts** — record a 15-second voice clip or write a short text note, both pinned to the same map. Posts expire from the map after 24 hours but remain in the user's profile.
-- **Hover cards** — hover a marker on desktop to see the author's avatar, name, city, post text, and date.
-- **Profile cards** — click a marker or avatar to open a full profile card showing bio, social links, active and total post counts, and a scrollable post list.
-- **Lazy Auth** — guests can browse the globe freely. Signing in with Google only happens when the user takes an action (post, react, edit profile), and they return exactly where they left off.
-- **Reactions** — 🔥 ❤️ 👏 😂 🤯 on each post. One reaction per user per post; tap again to remove.
-- **Share links** — every post has a `/post/<id>` URL for sharing. On mobile it uses the native Share API, on desktop it copies the link.
-- **Search** — find users by name, username, or bio via a search modal.
-- **Social links** — Telegram, GitHub, Instagram, website/portfolio, displayed on profile cards.
-- **Admin panel** — view all users and posts (active + archived), search by keyword, delete users or posts. Access gated by `ADMIN_EMAIL` env variable.
+Resonance is a real-time, globe-based social platform where people leave short voice or text notes pinned to their location on Earth. Every post becomes a colored marker on an interactive 3D globe — visitors can spin the planet, hover over markers to preview posts, and click to open full author profiles. Think of it as a living world map of human thoughts.
+
+### Core features
+
+- **Interactive 3D Globe** — a fully navigable Earth rendered in the browser with globe.gl. Posts appear as animated markers positioned at the author's country, with randomized jitter so overlapping posts spread naturally across the map. Country borders are drawn from real GeoJSON data.
+
+- **Voice & Text Posts** — users record a 15-second voice clip directly in the browser (no file upload needed) or type a short text note. Both post types live side by side on the globe. Posts are active on the map for 24 hours, then archived — keeping the map fresh while preserving a permanent profile history.
+
+- **Rich Hover Cards** — on desktop, hovering a marker instantly shows a floating preview with the author's avatar, name, city, post text, and timestamp. No clicks required — the globe rewards exploration.
+
+- **Full Profile Cards** — clicking any marker or avatar opens a detailed profile card showing the user's bio, social links (Telegram, GitHub, Instagram, website), and a scrollable list of their posts. Profiles display both active (24h) and total lifetime post counts.
+
+- **Lazy Authentication** — guests can explore the entire globe, read posts, and browse profiles without signing in. Google OAuth only triggers when the user takes an action (posting, reacting, editing their profile). After login, they return to exactly where they left off — no redirect, no friction.
+
+- **Real-time Reactions** — six emoji reactions (🔥 ❤️ 👏 😂 🤯) on every post. One reaction per user per post; tap again to remove. Reaction counts update instantly.
+
+- **Search & Discovery** — a global search modal lets users find others by name, username, or bio. Search results show user cards with avatars, bios, and locations — click to open the full profile.
+
+- **Social Link Integration** — users add their Telegram, GitHub, Instagram, and website links. These appear as clickable buttons on profile cards. Input automatically strips `@` prefixes and validates URLs, so links are always clean.
+
+- **Admin Dashboard** — a separate admin panel (`/admin`) gated by email allows viewing all users and posts (active + archived), searching by keyword, and deleting content. Stats cards show total users, active posts, and archived posts in real time.
+
+- **Mobile-First Responsive Design** — 9 breakpoints from 320px to 1440px+, with dedicated layouts for touch devices, landscape orientation, and safe-area insets. On mobile, navigation moves to a fixed bottom bar with a floating share button.
+
+- **Shareable Post Links** — every post gets a unique `/post/<id>` URL. On mobile, sharing uses the native Web Share API. On desktop, the link is copied to clipboard. Visitors see the globe with the shared post highlighted.
+
+- **Audio Recording in Browser** — a custom voice recorder using the MediaRecorder API captures 15-second clips. A live waveform visualizer shows recording progress. Audio is uploaded directly to Supabase Storage.
+
+- **24-Hour Post Lifecycle** — posts stay active on the map for exactly 24 hours, then automatically archive. The globe always shows fresh, relevant content. Archived posts remain visible on the author's profile as a permanent record.
+
+### Architecture decisions
+
+- **No frontend framework** — the entire UI is built with vanilla HTML, CSS, and JavaScript. No React, no Vue, no build step. This keeps the project simple, fast to deploy, and easy to understand.
+- **Token-based design system** — CSS custom properties (colors, spacing, border-radius, shadows) ensure visual consistency across the entire app. Dark theme is built in from the start.
+- **JSONB social links** — storing social links as a PostgreSQL JSONB column allows flexible schema evolution without migrations when new platforms are added.
+- **Country centroid placement** — instead of asking users to drop a pin, posts are automatically placed at their country's geographic center with per-post random jitter. This keeps the map readable while maintaining geographic accuracy.
 
 ## Tech stack
 
@@ -118,7 +144,7 @@ Set `ADMIN_EMAIL` in Render's environment variables to enable the admin panel fo
 
 ## Why I'm sharing this
 
-I'm open-sourcing this mainly as a record of what I learned: Flask backend design with SQLAlchemy, session-based auth with Google OAuth, 3D globe rendering with globe.gl, real-time audio recording in the browser, Supabase integration for database and file storage, responsive design across 9 breakpoints, and building a full social feature set (profiles, posts, reactions, search, admin) from scratch. Feel free to look around, fork it, or use pieces of it in your own learning projects. Pull requests and issues are welcome, but I'm not actively maintaining this as a product.
+I'm open-sourcing this as a comprehensive demonstration of what I can build end-to-end. This project covers the full stack: Flask backend design with SQLAlchemy ORM, session-based authentication with Google OAuth, real-time audio recording in the browser with the MediaRecorder API, 3D globe rendering with globe.gl and three.js, Supabase integration for database and file storage, a responsive design system spanning 9 breakpoints with touch/landscape/safe-area support, and a complete social feature set (profiles, posts, reactions, search, admin) — all built from scratch without any frontend framework. Feel free to look around, fork it, or use pieces of it in your own learning projects. Pull requests and issues are welcome, but I'm not actively maintaining this as a product.
 
 ## License
 
