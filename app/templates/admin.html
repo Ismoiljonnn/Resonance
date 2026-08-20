@@ -95,7 +95,7 @@ function renderUsers(users) {
       <img class="admin-card-avatar" src="${u.avatar_url || ''}" alt="">
       <div class="admin-card-info">
         <div class="admin-card-name">${escapeHtml(u.full_name || '')}</div>
-        <div class="admin-card-meta">${u.username ? '@'+escapeHtml(u.username) : ''} · ${escapeHtml(u.email || '')}</div>
+        <div class="admin-card-meta">${u.username ? `<a href="/${escapeHtml(u.username)}" class="admin-username-link">@${escapeHtml(u.username)}</a>` : ''} · ${escapeHtml(u.email || '')}</div>
         <div class="admin-card-meta">${escapeHtml(u.location_country || '')} · ${u.post_count} posts</div>
       </div>
       <button class="btn-danger-sm" onclick="deleteUser('${u.id}')">Delete</button>

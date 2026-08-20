@@ -49,6 +49,8 @@ html,body{overflow:auto;height:auto !important;}
 .admin-card-row{display:flex;align-items:center;gap:8px;}
 .admin-card-name{font-family:var(--font-display);font-weight:500;font-size:14px;}
 .admin-card-meta{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.admin-username-link{color:var(--blue-600);text-decoration:none;}
+.admin-username-link:hover{text-decoration:underline;}
 .admin-card-text{
   font-size:13px;margin-top:4px;
   word-wrap:break-word;overflow-wrap:break-word;white-space:normal;
