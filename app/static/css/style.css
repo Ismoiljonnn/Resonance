@@ -326,8 +326,9 @@ body{
   font-family:var(--font-body);
   transition:background .15s,color .15s;
 }
+.stats-tab:hover{background:var(--surface);}
 .stats-tab strong{font-family:var(--font-display);font-weight:500;font-size:15px;}
-.stats-tab.active{background:var(--surface);color:var(--text);border-color:var(--blue);}
+.stats-tab.active{background:var(--surface);color:var(--text);}
 
 .joined-row{display:flex;align-items:center;gap:5px;margin-top:2px;}
 .joined-row svg{flex-shrink:0;opacity:.7;}
