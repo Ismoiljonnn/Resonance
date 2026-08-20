@@ -40,24 +40,12 @@ def create_app():
     # The page loads for guests too — login isn't required
     @main_bp.route("/")
     def index():
-        return render_template(
-            "index.html",
-            open_recorder=request.args.get("open_recorder"),
-            lat=request.args.get("lat"),
-            lng=request.args.get("lng"),
-            open_post=None,
-        )
+        return render_template("index.html")
 
-    # Share link: /post/<id> — opens that post automatically
+    # Share link: /post/<id> — kept for URL compatibility
     @main_bp.route("/post/<post_id>")
     def view_post(post_id):
-        return render_template(
-            "index.html",
-            open_recorder=None,
-            lat=None,
-            lng=None,
-            open_post=post_id,
-        )
+        return render_template("index.html")
 
     @main_bp.route("/admin")
     def admin_page():

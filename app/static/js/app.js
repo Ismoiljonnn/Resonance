@@ -473,16 +473,6 @@ document.getElementById('bbLogout').addEventListener('click', () => {
 window.addEventListener('DOMContentLoaded', async () => {
   populateCountrySelect(document.getElementById('in-country'));
   await checkAuth();
-
-  if (body.dataset.openRecorder === '1') {
-    openRecorderModal();
-    history.replaceState(null, '', window.location.pathname);
-  }
-
-  if (body.dataset.openPost) {
-    openSinglePost(body.dataset.openPost);
-    history.replaceState(null, '', window.location.pathname);
-  }
 });
 
 function openRecorderModal() {

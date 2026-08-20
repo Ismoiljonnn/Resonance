@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, url_for, session, request, jsonify, current_app
+from flask import Blueprint, redirect, url_for, jsonify, current_app
 from flask_login import login_user, logout_user, current_user
 from authlib.integrations.flask_client import OAuth
 
@@ -26,14 +26,6 @@ def init_oauth(app):
 
 @auth_bp.route("/google/login")
 def google_login():
-    """
-    Lazy-auth trigger: the user is routed here when they click "Share a thought".
-    We stash `intent` (and `pending_lat`/`pending_lng`, if any) in the session so
-    the callback can send them back to exactly what they were doing.
-    """
-    intent = request.args.get("intent", "share_thought")
-    session["pending_intent"] = intent
-
     redirect_uri = url_for("auth.google_callback", _external=True)
     return oauth.google.authorize_redirect(redirect_uri)
 
@@ -66,14 +58,6 @@ def google_callback():
         db.session.commit()
 
     login_user(user, remember=True)
-
-    # Send the user back to what they were doing (with the composer open)
-    intent = session.pop("pending_intent", None)
-    session.pop("pending_lat", None)
-    session.pop("pending_lng", None)
-
-    if intent == "share_thought":
-        return redirect(url_for("main.index", open_recorder=1))
 
     return redirect(url_for("main.index"))
 
