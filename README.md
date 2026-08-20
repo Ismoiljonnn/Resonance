@@ -1,143 +1,125 @@
-# Resonance — Ovozli Ijtimoiy Xarita
+# Resonance — Echoes of the Earth
 
-Anonim ovozli chatdan Ochiq Ovozli Ijtimoiy Xarita (3D globus + Twitter/X + SnapMap hibridi).
+A social voice map. Users leave short voice or text notes pinned to a 3D globe, creating a living, worldwide conversation layered on top of the real world.
 
-## Loyiha tuzilishi
+This is a learning project. I built it to practice full-stack development (Flask + PostgreSQL + vanilla JS + 3D rendering) by combining a social app, a voice recorder, and an interactive globe into one. It started as a hackathon build and I kept extending it afterwards on my own to learn more. It placed at my 3rd hackathon.
+
+It is not a polished, maintained product — expect rough edges, and read the code with that in mind.
+
+## What it does
+
+- **3D Globe** — posts are rendered as colored markers on an interactive globe (globe.gl), placed at the user's country with per-post jitter so overlapping posts spread out.
+- **Voice & Text posts** — record a 15-second voice clip or write a short text note, both pinned to the same map. Posts expire from the map after 24 hours but remain in the user's profile.
+- **Hover cards** — hover a marker on desktop to see the author's avatar, name, city, post text, and date.
+- **Profile cards** — click a marker or avatar to open a full profile card showing bio, social links, active and total post counts, and a scrollable post list.
+- **Lazy Auth** — guests can browse the globe freely. Signing in with Google only happens when the user takes an action (post, react, edit profile), and they return exactly where they left off.
+- **Reactions** — 🔥 ❤️ 👏 😂 🤯 on each post. One reaction per user per post; tap again to remove.
+- **Share links** — every post has a `/post/<id>` URL for sharing. On mobile it uses the native Share API, on desktop it copies the link.
+- **Search** — find users by name, username, or bio via a search modal.
+- **Social links** — Telegram, GitHub, Instagram, website/portfolio, displayed on profile cards.
+- **Admin panel** — view all users and posts (active + archived), search by keyword, delete users or posts. Access gated by `ADMIN_EMAIL` env variable.
+
+## Tech stack
+
+| Layer | Tech |
+|-------|------|
+| Backend | Python 3, Flask, SQLAlchemy (PostgreSQL) |
+| Frontend | HTML, CSS (custom, token-based), vanilla JS — no build step |
+| 3D Globe | globe.gl + three.js (CDN) |
+| Country borders | GeoJSON from globe.gl GitHub repo |
+| Auth | Flask sessions, Google OAuth via Authlib, Flask-Login |
+| Database | PostgreSQL (Supabase) |
+| Audio storage | Supabase Storage |
+| Deploy | Render.com (Gunicorn) |
+
+There's no frontend build system (no webpack/npm) — the JS/CSS are loaded straight in the browser, which keeps the project simple and easy to deploy.
+
+## Project structure
+
 ```
 resonance/
+├── run.py                  # Entry point: creates app, runs on port 5000
 ├── app/
-│   ├── __init__.py      # Flask app factory
-│   ├── config.py        # Sozlamalar (.env orqali)
-│   ├── models.py        # User, AudioPost, Reaction (SQLAlchemy)
-│   ├── auth.py          # Google OAuth (Lazy Auth oqimi)
-│   ├── api.py           # markers, profile, audio, matn, reaction, share
-│   ├── templates/index.html
-│   └── static/{css,js}/
+│   ├── __init__.py         # Flask app factory, route registration
+│   ├── config.py           # Settings from env vars (DATABASE_URL, OAuth keys, etc.)
+│   ├── models.py           # User, AudioPost (SQLAlchemy + JSONB)
+│   ├── auth.py             # Google OAuth flow, /auth/me endpoint
+│   ├── api.py              # REST API: markers, profile, posts, search, reactions, admin
+│   ├── templates/
+│   │   ├── index.html      # Main SPA shell (globe, modals, topbar, bottom bar)
+│   │   └── admin.html      # Admin dashboard (users + posts management)
+│   └── static/
+│       ├── css/
+│       │   ├── style.css   # Design tokens, components, modals
+│       │   ├── responsive.css  # 9 breakpoints + touch/landscape/safe-area
+│       │   └── admin.css   # Admin page styles
+│       ├── js/
+│       │   ├── app.js      # Globe, hover cards, profile, search, recorder, auth
+│       │   └── countries.js    # Country centroids + jitter for marker placement
+│       └── favicon.svg     # Inline SVG globe icon
 ├── requirements.txt
 ├── .env.example
-└── run.py
+├── Procfile                # gunicorn start command
+└── render.yaml             # Render.com blueprint (web service + Postgres)
 ```
 
----
+## Running it locally
 
-## QADAM-BAQADAM: Supabase (DB) va Google OAuth ulash
+You'll need Python 3 and a PostgreSQL database.
 
-### 1-QADAM — Supabase loyihasini yaratish
+### 1. Set up the database
 
-1. https://supabase.com/dashboard ga kiring, Google/GitHub bilan ro'yxatdan o'ting.
-2. **"New Project"** tugmasini bosing:
-   - **Name**: `resonance` (yoki xohlagan nom)
-   - **Database Password**: kuchli parol o'ylab toping va **albatta saqlab qo'ying** — keyin kerak bo'ladi
-   - **Region**: foydalanuvchilaringizga eng yaqin region (masalan, Frankfurt yoki Singapore — O'zbekistonga yaqinroq)
-3. "Create new project" — 1-2 daqiqa kutasiz, baza tayyor bo'ladi.
+You can use Supabase (free tier) or a local Postgres. Create a `.env` file:
 
-### 2-QADAM — Connection string (`DATABASE_URL`) olish
+```bash
+cp .env.example .env
+```
 
-1. Chap paneldan **Project Settings (⚙️) → Database** ga o'ting.
-2. **"Connection string"** bo'limida **"URI"** tabini tanlang.
-3. Ko'rinadigan qatorni nusxalang, masalan:
-   ```
-   postgresql://postgres.[project-ref]:[YOUR-PASSWORD]@aws-0-eu-central-1.pooler.supabase.com:6543/postgres
-   ```
-4. `[YOUR-PASSWORD]` o'rniga 1-qadamda o'ylab topgan parolingizni qo'ying.
+Fill in the values:
 
-> **Muhim**: Flask/Gunicorn odatiy ishlab chiqarishda ko'p vaqt ulanib-uzilib turadi,
-> shuning uchun **6543-portli pooler (Transaction mode)** connection stringni ishlating —
-> u yuqorida ko'rsatilgan. Agar migratsiya paytida xatolik chiqsa, 5432-portli
-> "Direct connection" stringni sinab ko'ring (Session mode).
+```
+SECRET_KEY=any-random-string-for-dev
+DATABASE_URL=postgresql://user:pass@localhost:5432/resonance
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+ADMIN_EMAIL=your-email@gmail.com
+```
 
-5. Loyiha papkasida `.env` faylini yarating:
-   ```bash
-   cp .env.example .env
-   ```
-6. `.env` faylini oching va `DATABASE_URL`ni joylashtiring:
-   ```
-   DATABASE_URL=postgresql://postgres.[project-ref]:SIZNING_PAROLINGIZ@aws-0-eu-central-1.pooler.supabase.com:6543/postgres
-   ```
-
-### 3-QADAM — Google OAuth Client yaratish
-
-1. https://console.cloud.google.com ga kiring.
-2. Yuqoridan yangi loyiha yarating (masalan, "Resonance").
-3. Chap menyu: **APIs & Services → OAuth consent screen**
-   - User Type: **External** ni tanlang → Create
-   - App name: `Resonance`
-   - User support email va Developer contact — o'z emailingiz
-   - Scopes qadamida hech narsa qo'shmasdan "Save and Continue" bosavering
-   - Test users qadamida (agar app "Testing" holatida bo'lsa) o'z emailingizni qo'shing
-4. Chap menyu: **APIs & Services → Credentials → + Create Credentials → OAuth client ID**
-   - Application type: **Web application**
-   - Name: `Resonance Web`
-   - **Authorized JavaScript origins**:
-     ```
-     http://localhost:5000
-     ```
-   - **Authorized redirect URIs**:
-     ```
-     http://localhost:5000/auth/google/callback
-     ```
-   - Production'ga chiqarganda shu yerga haqiqiy domeningizni ham qo'shasiz:
-     ```
-     https://sizning-domeningiz.uz/auth/google/callback
-     ```
-5. "Create" bosgach chiqqan **Client ID** va **Client Secret**ni nusxalang.
-6. `.env` fayliga qo'shing:
-   ```
-   GOOGLE_CLIENT_ID=123456-abc.apps.googleusercontent.com
-   GOOGLE_CLIENT_SECRET=GOCSPX-xxxxxxxxxxxxx
-   ```
-7. `.env` faylida `SECRET_KEY`ni ham tasodifiy qiymatga almashtiring:
-   ```bash
-   python3 -c "import secrets; print(secrets.token_hex(32))"
-   ```
-   Chiqqan qiymatni `SECRET_KEY=...` ga qo'ying.
-
-### 4-QADAM — Loyihani ishga tushirish
+### 2. Install and run
 
 ```bash
 python -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
-export FLASK_APP=run.py         # Windows (PowerShell): $env:FLASK_APP="run.py"
 flask db init
-flask db migrate -m "initial: users, audio_posts, reactions"
+flask db migrate -m "initial"
 flask db upgrade
 
-python run.py
+python run.py                   # opens on http://localhost:5000
 ```
 
-Brauzerda oching: **http://localhost:5000**
+The database tables are created automatically on first run.
 
-"Fikr qoldirish" tugmasini bosing → "Continue with Google" → ruxsat bering →
-avtomatik audio yozish oynasiga qaytasiz. Agar shu yerga yetib kelsangiz —
-Supabase + Google OAuth to'liq ishlayapti.
+### Google OAuth setup (required)
 
-### Muammo bo'lsa (tez tekshiruv)
+1. Go to https://console.cloud.google.com → create a project.
+2. **APIs & Services → OAuth consent screen** → External → fill in app name and email.
+3. **APIs & Services → Credentials → + Create Credentials → OAuth client ID** → Web application.
+4. Add `http://localhost:5000` to Authorized JavaScript origins.
+5. Add `http://localhost:5000/auth/google/callback` to Authorized redirect URIs.
+6. Copy the Client ID and Client Secret into your `.env`.
 
-| Xatolik | Sabab / yechim |
-|---|---|
-| `psycopg2.OperationalError` | `DATABASE_URL` noto'g'ri yoki parol xato — 2-qadamni qayta tekshiring |
-| Google login'da `redirect_uri_mismatch` | Google Console'dagi Authorized redirect URI aniq `http://localhost:5000/auth/google/callback` bo'lishi kerak (oxirida `/` bo'lmasin) |
-| `Access blocked: this app's request is invalid` | OAuth consent screen "Testing" holatida va sizning emailingiz Test users'ga qo'shilmagan |
-| `relation "users" does not exist` | `flask db upgrade` bajarilmagan yoki muvaffaqiyatsiz tugagan |
+## Deploying to Render.com
 
----
+The repo includes a `render.yaml` blueprint. Push to GitHub, then in the Render Dashboard choose **New → Blueprint** and pick the repo. Render will provision a Postgres database and a web service. Fill in the Google OAuth and Supabase Storage variables in the dashboard.
 
-## Funksiyalar
+Set `ADMIN_EMAIL` in Render's environment variables to enable the admin panel for your account.
 
-- **Mehmon rejimi**: `/`, `/api/markers`, `/api/profile/<id>`, `/api/post/<id>` — login shart emas
-- **Lazy Auth**: faol harakat (fikr qoldirish, reaksiya) bosilgandagina Google login so'raladi,
-  keyin foydalanuvchi to'xtagan joyiga avtomatik qaytadi
-- **Ovoz yoki matn**: har ikkisi ham bir xil xarita nuqtasi (`post_type` bilan farqlanadi)
-- **Reaksiyalar**: 🔥 ❤️ 👏 😂 🤯 — bitta foydalanuvchi bitta postga bitta reaksiya, qayta bossa olib tashlanadi
-- **Ulashish**: har bir post `/post/<id>` orqali tashqi joyga ulashiladi
-  (mobil qurilmada native Share API, boshqasida havola nusxalanadi)
-- **Shaxsiy kabinet**: `DELETE /api/audio/<id>` — faqat muallif o'z postini o'chira oladi
+## Why I'm sharing this
 
-## Keyingi bosqichlar (production uchun tavsiya)
+I'm open-sourcing this mainly as a record of what I learned: Flask backend design with SQLAlchemy, session-based auth with Google OAuth, 3D globe rendering with globe.gl, real-time audio recording in the browser, Supabase integration for database and file storage, responsive design across 9 breakpoints, and building a full social feature set (profiles, posts, reactions, search, admin) from scratch. Feel free to look around, fork it, or use pieces of it in your own learning projects. Pull requests and issues are welcome, but I'm not actively maintaining this as a product.
 
-- Audio fayllarni lokal `/static/uploads` o'rniga **Supabase Storage**ga ko'chirish
-- Rate limiting (`Flask-Limiter`) — spamdan himoya
-- 24 soatlik "aktiv" muddat uchun background job (APScheduler yoki Supabase cron)
-- Production'da `gunicorn run:app` bilan ishga tushirish, orqasida Nginx + HTTPS
+## License
+
+This project is shared as-is for learning purposes. Feel free to use, modify, and learn from the code.
