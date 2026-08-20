@@ -16,10 +16,10 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # Render/Heroku kabi platformalar HTTPS trafikni ichkarida HTTP orqali
-    # uzatadi (reverse proxy). Bu bo'lmasa, Google OAuth redirect_uri
-    # noto'g'ri "http://" bilan generatsiya bo'lib, redirect_uri_mismatch
-    # xatoligiga olib keladi.
+    # Platforms like Render/Heroku terminate HTTPS and forward plain HTTP
+    # internally (reverse proxy). Without this, the Google OAuth redirect_uri
+    # gets generated with the wrong "http://" scheme, causing a
+    # redirect_uri_mismatch error.
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
     db.init_app(app)
@@ -37,7 +37,7 @@ def create_app():
     from flask import Blueprint
     main_bp = Blueprint("main", __name__)
 
-    # Mehmon rejimida ham sahifa ochiladi - login shart emas
+    # The page loads for guests too — login isn't required
     @main_bp.route("/")
     def index():
         return render_template(
@@ -48,7 +48,7 @@ def create_app():
             open_post=None,
         )
 
-    # Ulashish linki: /post/<id> - post avtomatik ochiladi
+    # Share link: /post/<id> — opens that post automatically
     @main_bp.route("/post/<post_id>")
     def view_post(post_id):
         return render_template(

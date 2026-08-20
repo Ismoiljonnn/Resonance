@@ -22,19 +22,12 @@ def init_oauth(app):
 @auth_bp.route("/google/login")
 def google_login():
     """
-    Lazy Auth trigger: foydalanuvchi 'Fikr qoldirish' tugmasini bosganda
-    shu route'ga yo'naltiriladi. `intent` va `pending_lat`/`pending_lng` kabi
-    parametrlarni session'da saqlab qo'yamiz, callback'dan keyin foydalanuvchi
-    aynan to'xtagan joyiga qaytadi.
+    Lazy-auth trigger: the user is routed here when they click "Share a thought".
+    We stash `intent` (and `pending_lat`/`pending_lng`, if any) in the session so
+    the callback can send them back to exactly what they were doing.
     """
-    intent = request.args.get("intent", "record_audio")
-    lat = request.args.get("lat")
-    lng = request.args.get("lng")
-
+    intent = request.args.get("intent", "share_thought")
     session["pending_intent"] = intent
-    if lat and lng:
-        session["pending_lat"] = lat
-        session["pending_lng"] = lng
 
     redirect_uri = url_for("auth.google_callback", _external=True)
     return oauth.google.authorize_redirect(redirect_uri)
@@ -52,7 +45,7 @@ def google_callback():
 
     user = User.query.filter_by(google_sub=google_sub).first()
     if user is None:
-        # Birinchi marta kirish -> avtomatik ro'yxatdan o'tkazish (email/full_name/avatar Google'dan)
+        # First-time login -> auto-register (email/full_name/avatar come from Google)
         user = User(
             google_sub=google_sub,
             email=email,
@@ -62,20 +55,20 @@ def google_callback():
         db.session.add(user)
         db.session.commit()
     else:
-        # Har safar Google'dagi avatar/ism yangilanishi mumkin - sinxronlab turamiz
+        # The avatar/name on Google can change — keep them in sync
         user.avatar_url = avatar_url
         user.full_name = full_name or user.full_name
         db.session.commit()
 
     login_user(user, remember=True)
 
-    # Foydalanuvchi to'xtagan joyiga qaytarish (audio yozish modali ochiq holda)
+    # Send the user back to what they were doing (with the composer open)
     intent = session.pop("pending_intent", None)
-    lat = session.pop("pending_lat", None)
-    lng = session.pop("pending_lng", None)
+    session.pop("pending_lat", None)
+    session.pop("pending_lng", None)
 
-    if intent == "record_audio" and lat and lng:
-        return redirect(url_for("main.index", open_recorder=1, lat=lat, lng=lng))
+    if intent == "share_thought":
+        return redirect(url_for("main.index", open_recorder=1))
 
     return redirect(url_for("main.index"))
 
@@ -88,7 +81,7 @@ def logout():
 
 @auth_bp.route("/me")
 def me():
-    """Frontend session holatini tekshirishi uchun (login bo'lganmi yo'qmi)"""
+    """Lets the frontend check session state (logged in or not)"""
     if current_user.is_authenticated:
         return jsonify({
             "authenticated": True,

@@ -1,47 +1,77 @@
-// ============ Holat ============
+// ============ State ============
 let currentUser = null;
-let selectedLat = null;
-let selectedLng = null;
-let mediaRecorder = null;
-let recordedChunks = [];
-let recordedBlob = null;
-let recordSeconds = 0;
-let recordTimerInterval = null;
+let selectedHomeCoords = null; // { lat, lng } derived from the chosen country
+let profileEditTarget = null; // which user id the profile modal is currently showing
 
-const REACTION_EMOJIS = ["🔥", "❤️", "👏", "😂", "🤯"];
 const body = document.body;
 
-// ============ 3D Globus ============
+// ============ 3D Globe ============
 const globe = Globe()(document.getElementById('globeViz'))
   .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
   .backgroundColor('rgba(0,0,0,0)')
-  .atmosphereColor('#4285f4')
+  .atmosphereColor('#8ab4f8')
   .atmosphereAltitude(0.18)
-  .pointOfView({ lat: 41.3, lng: 69.2, altitude: 2.2 });
+  .pointOfView({ lat: 41.3, lng: 69.2, altitude: 2.2 })
+  .pointLabel(() => '') // we render our own hover card instead of the built-in tooltip
+  .onPointHover(handlePointHover)
+  .onPointClick(handlePointClick);
 
-globe.onGlobeClick(({ lat, lng }) => {
-  selectedLat = lat;
-  selectedLng = lng;
-  showToast('Nuqta tanlandi — endi "Fikr qoldirish"ni bosing');
-});
+let markersById = {};
 
 async function loadMarkers() {
   const res = await fetch('/api/markers');
   const markers = await res.json();
+  markersById = Object.fromEntries(markers.map(m => [m.id, m]));
 
   globe
     .pointsData(markers)
     .pointLat('lat')
     .pointLng('lng')
-    .pointColor(m => m.post_type === 'text' ? '#ff8a65' : '#00e5c7')
+    .pointColor(() => '#8ab4f8')
     .pointAltitude(0.012)
-    .pointRadius(0.38)
-    .pointLabel(m => `<div style="font-family:Roboto,sans-serif;color:#fff;font-size:12px;background:rgba(0,0,0,.7);padding:6px 10px;border-radius:8px;">
-        <strong>${m.author_name}</strong>${m.preview ? '<br>' + m.preview + '…' : ''}
-      </div>`)
-    .onPointClick(m => openProfileCard(m.id));
+    .pointRadius(0.35);
 }
 loadMarkers();
+
+// ============ Hover card ============
+const hoverCard = document.getElementById('hoverCard');
+let lastMouseX = 0, lastMouseY = 0;
+
+document.getElementById('globeViz').addEventListener('mousemove', (e) => {
+  lastMouseX = e.clientX;
+  lastMouseY = e.clientY;
+  if (!hoverCard.classList.contains('hidden')) positionHoverCard();
+});
+
+function positionHoverCard() {
+  const pad = 16;
+  const rect = hoverCard.getBoundingClientRect();
+  let left = lastMouseX - rect.width - pad; // to the left of the cursor / point
+  let top = lastMouseY - rect.height / 2;
+  if (left < 8) left = lastMouseX + pad;
+  top = Math.max(8, Math.min(window.innerHeight - rect.height - 8, top));
+  hoverCard.style.left = `${left}px`;
+  hoverCard.style.top = `${top}px`;
+}
+
+function handlePointHover(point) {
+  if (!point) {
+    hoverCard.classList.add('hidden');
+    return;
+  }
+  document.getElementById('hover-avatar').src = point.author_avatar || '';
+  document.getElementById('hover-name').textContent = point.author_name || '';
+  document.getElementById('hover-text').textContent =
+    point.preview ? `${point.preview}…` : '';
+  hoverCard.classList.remove('hidden');
+  positionHoverCard();
+}
+
+function handlePointClick(point) {
+  if (!point) return;
+  hoverCard.classList.add('hidden');
+  openProfileCard(point.author_id);
+}
 
 // ============ Toast ============
 let toastTimeout;
@@ -53,17 +83,21 @@ function showToast(msg) {
   toastTimeout = setTimeout(() => el.classList.add('hidden'), 2500);
 }
 
-// ============ Public Profile Card ============
+// ============ Profile page (own = editable, stranger's = read-only) ============
 async function openProfileCard(userId) {
   const res = await fetch(`/api/profile/${userId}`);
-  if (!res.ok) return;
+  if (!res.ok) { showToast('Profile not found'); return; }
   const p = await res.json();
+  profileEditTarget = userId;
+
+  const isOwn = currentUser && currentUser.id === userId;
 
   document.getElementById('pf-avatar').src = p.avatar_url || '';
   document.getElementById('pf-name').textContent = p.full_name;
   document.getElementById('pf-username').textContent = p.username ? '@' + p.username : '';
+  document.getElementById('pf-location-text').textContent =
+    [p.location_city, p.location_country].filter(Boolean).join(', ') || 'Location not set';
   document.getElementById('pf-bio').textContent = p.bio || '';
-  document.getElementById('pf-location').textContent = [p.location_city, p.location_country].filter(Boolean).join(', ');
   document.getElementById('pf-listens').textContent = p.total_listens || 0;
   document.getElementById('pf-posts-count').textContent = (p.active_posts || []).length;
 
@@ -75,6 +109,7 @@ async function openProfileCard(userId) {
     const a = document.createElement('a');
     a.href = url.startsWith('http') ? url : `https://${url}`;
     a.target = '_blank';
+    a.rel = 'noopener';
     a.textContent = linkLabels[key] || key;
     linksEl.appendChild(a);
   });
@@ -83,30 +118,88 @@ async function openProfileCard(userId) {
   postsListEl.innerHTML = '';
   (p.active_posts || []).forEach(post => {
     const wrap = document.createElement('div');
-    if (post.post_type === 'text') {
-      const bubble = document.createElement('div');
-      bubble.className = 'post-text-bubble';
-      bubble.textContent = post.text_content;
-      bubble.style.cursor = 'pointer';
-      bubble.addEventListener('click', () => openSinglePost(post.id));
-      wrap.appendChild(bubble);
-    } else {
-      const audio = document.createElement('audio');
-      audio.controls = true;
-      audio.src = post.audio_url;
-      audio.addEventListener('play', () => fetch(`/api/audio/${post.id}/listen`, { method: 'POST' }));
-      wrap.appendChild(audio);
-    }
+    const bubble = document.createElement('div');
+    bubble.className = 'post-text-bubble';
+    bubble.textContent = post.text_content;
+    bubble.style.cursor = 'pointer';
+    bubble.addEventListener('click', () => openSinglePost(post.id));
+    wrap.appendChild(bubble);
     postsListEl.appendChild(wrap);
   });
+
+  const editBtn = document.getElementById('editProfileBtn');
+  editBtn.classList.toggle('hidden', !isOwn);
+  showProfileReadMode();
+
+  if (isOwn) prefillEditForm(p);
 
   showModal('profileModal');
 }
 
-// ============ Bitta post ko'rish (share) ============
+function showProfileReadMode() {
+  document.getElementById('pf-view').classList.remove('hidden');
+  document.getElementById('pf-edit').classList.add('hidden');
+}
+function showProfileEditMode() {
+  document.getElementById('pf-view').classList.add('hidden');
+  document.getElementById('pf-edit').classList.remove('hidden');
+}
+
+function prefillEditForm(p) {
+  document.getElementById('edit-username').value = p.username || '';
+  document.getElementById('edit-bio').value = p.bio || '';
+  document.getElementById('edit-city').value = p.location_city || '';
+  document.getElementById('edit-telegram').value = (p.social_links || {}).telegram || '';
+  document.getElementById('edit-github').value = (p.social_links || {}).github || '';
+  document.getElementById('edit-instagram').value = (p.social_links || {}).instagram || '';
+  populateCountrySelect(document.getElementById('edit-country'));
+  document.getElementById('edit-country').value = p.location_country || '';
+}
+
+document.getElementById('editProfileBtn').addEventListener('click', showProfileEditMode);
+document.getElementById('cancelEditBtn').addEventListener('click', showProfileReadMode);
+
+document.getElementById('saveEditBtn').addEventListener('click', async () => {
+  const country = document.getElementById('edit-country').value;
+  const coords = country ? COUNTRY_COORDS[country] : null;
+  const jittered = coords ? jitterCoords(coords.lat, coords.lng) : null;
+
+  const payload = {
+    username: document.getElementById('edit-username').value.trim(),
+    bio: document.getElementById('edit-bio').value.trim(),
+    location_country: country || null,
+    location_city: document.getElementById('edit-city').value.trim() || null,
+    social_links: {
+      telegram: document.getElementById('edit-telegram').value.trim(),
+      github: document.getElementById('edit-github').value.trim(),
+      instagram: document.getElementById('edit-instagram').value.trim(),
+    },
+  };
+  if (jittered) {
+    payload.home_lat = jittered.lat;
+    payload.home_lng = jittered.lng;
+  }
+
+  const res = await fetch('/api/profile', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    showToast(err.error || 'Something went wrong');
+    return;
+  }
+  currentUser = await res.json();
+  showToast('Profile updated');
+  await openProfileCard(currentUser.id);
+  loadMarkers();
+});
+
+// ============ Single post view (share link) ============
 async function openSinglePost(postId) {
   const res = await fetch(`/api/post/${postId}`);
-  if (!res.ok) { showToast('Post topilmadi'); return; }
+  if (!res.ok) { showToast('Post not found'); return; }
   const post = await res.json();
 
   hideModal('profileModal');
@@ -115,24 +208,16 @@ async function openSinglePost(postId) {
   authorRow.innerHTML = `
     <img class="avatar-lg" src="${post.author.avatar_url || ''}" alt="">
     <div>
-      <div style="font-family:var(--font-display);font-weight:500;">${post.author.full_name}</div>
-      <div class="muted">${post.author.username ? '@' + post.author.username : ''}</div>
+      <div style="font-family:var(--font-display);font-weight:500;">${escapeHtml(post.author.full_name)}</div>
+      <div class="muted">${post.author.username ? '@' + escapeHtml(post.author.username) : ''}</div>
     </div>`;
 
   const bodyEl = document.getElementById('post-body');
-  if (post.post_type === 'text') {
-    bodyEl.innerHTML = `<div class="post-text-bubble" style="font-size:16px;">${escapeHtml(post.text_content)}</div>`;
-  } else {
-    bodyEl.innerHTML = `<audio controls style="width:100%;" src="${post.audio_url}"></audio>`;
-    bodyEl.querySelector('audio').addEventListener('play', () => fetch(`/api/audio/${post.id}/listen`, { method: 'POST' }));
-  }
-
-  renderReactions(post);
+  bodyEl.innerHTML = `<div class="post-text-bubble" style="font-size:16px;">${escapeHtml(post.text_content)}</div>`;
 
   document.getElementById('shareBtn').onclick = () => sharePost(post.id);
 
   showModal('postModal');
-  window.currentOpenPostId = post.id;
 }
 
 function escapeHtml(str) {
@@ -141,47 +226,16 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-// ============ Reaksiyalar ============
-function renderReactions(post) {
-  const el = document.getElementById('post-reactions');
-  el.innerHTML = '';
-  REACTION_EMOJIS.forEach(emoji => {
-    const count = (post.reactions && post.reactions[emoji]) || 0;
-    const chip = document.createElement('button');
-    chip.className = 'reaction-chip' + (post.my_reaction === emoji ? ' active' : '');
-    chip.innerHTML = `<span>${emoji}</span>${count > 0 ? `<span class="count">${count}</span>` : ''}`;
-    chip.addEventListener('click', () => toggleReaction(post.id, emoji));
-    el.appendChild(chip);
-  });
-}
-
-async function toggleReaction(postId, emoji) {
-  const auth = await checkAuth();
-  if (!auth.authenticated) {
-    document.getElementById('googleLoginBtn').href = `/auth/google/login?intent=react&lat=${selectedLat || ''}&lng=${selectedLng || ''}`;
-    showModal('authModal');
-    return;
-  }
-  const res = await fetch(`/api/audio/${postId}/react`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ emoji }),
-  });
-  if (!res.ok) return;
-  const updated = await res.json();
-  renderReactions(updated);
-}
-
-// ============ Ulashish ============
+// ============ Share ============
 async function sharePost(postId) {
   const url = `${window.location.origin}/post/${postId}`;
   if (navigator.share) {
     try {
       await navigator.share({ title: 'Resonance', url });
-    } catch (e) { /* foydalanuvchi bekor qildi */ }
+    } catch (e) { /* user cancelled */ }
   } else {
     await navigator.clipboard.writeText(url);
-    showToast('Havola nusxalandi');
+    showToast('Link copied');
   }
 }
 
@@ -200,34 +254,36 @@ async function checkAuth() {
 
 document.getElementById('recordTrigger').addEventListener('click', async () => {
   const auth = await checkAuth();
-
-  if (selectedLat === null) {
-    const pov = globe.pointOfView();
-    selectedLat = pov.lat;
-    selectedLng = pov.lng;
-  }
-
   if (!auth.authenticated) {
-    const loginUrl = `/auth/google/login?intent=record_audio&lat=${selectedLat}&lng=${selectedLng}`;
-    document.getElementById('googleLoginBtn').href = loginUrl;
+    document.getElementById('googleLoginBtn').href = `/auth/google/login?intent=share_thought`;
     showModal('authModal');
     return;
   }
-
   openRecorderModal();
+});
+
+// User menu (avatar chip dropdown)
+document.getElementById('userChipBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('userMenu').classList.toggle('hidden');
+});
+document.addEventListener('click', () => document.getElementById('userMenu').classList.add('hidden'));
+
+document.getElementById('myProfileBtn').addEventListener('click', () => {
+  document.getElementById('userMenu').classList.add('hidden');
+  if (currentUser) openProfileCard(currentUser.id);
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
   window.location.href = '/auth/logout';
 });
 
-// ============ Sahifa yuklanganda ============
+// ============ On page load ============
 window.addEventListener('DOMContentLoaded', async () => {
+  populateCountrySelect(document.getElementById('in-country'));
   await checkAuth();
 
   if (body.dataset.openRecorder === '1') {
-    selectedLat = parseFloat(body.dataset.lat);
-    selectedLng = parseFloat(body.dataset.lng);
     openRecorderModal();
   }
 
@@ -238,31 +294,33 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 function openRecorderModal() {
   showModal('recorderModal');
-  if (currentUser && currentUser.username && currentUser.bio) {
+  if (currentUser && currentUser.username && currentUser.bio && currentUser.location_country) {
     document.getElementById('profileFillStep').classList.add('hidden');
     document.getElementById('postTypeStep').classList.remove('hidden');
   } else {
     document.getElementById('profileFillStep').classList.remove('hidden');
     document.getElementById('postTypeStep').classList.add('hidden');
+    if (currentUser) {
+      document.getElementById('in-username').value = currentUser.username || '';
+      document.getElementById('in-bio').value = currentUser.bio || '';
+    }
   }
 }
 
-// ============ Ovoz / Matn tab ============
-document.getElementById('tabAudio').addEventListener('click', () => switchPostTab('audio'));
-document.getElementById('tabText').addEventListener('click', () => switchPostTab('text'));
-
-function switchPostTab(type) {
-  document.getElementById('tabAudio').classList.toggle('active', type === 'audio');
-  document.getElementById('tabText').classList.toggle('active', type === 'text');
-  document.getElementById('audioStep').classList.toggle('hidden', type !== 'audio');
-  document.getElementById('textStep').classList.toggle('hidden', type !== 'text');
-}
-
-// ============ Profil to'ldirish ============
+// ============ Profile setup (region-based placement) ============
 document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+  const country = document.getElementById('in-country').value;
+  if (!country) { showToast('Please choose your country'); return; }
+  const base = COUNTRY_COORDS[country];
+  const home = jitterCoords(base.lat, base.lng);
+
   const payload = {
     username: document.getElementById('in-username').value.trim(),
     bio: document.getElementById('in-bio').value.trim(),
+    location_country: country,
+    location_city: document.getElementById('in-city').value.trim() || null,
+    home_lat: home.lat,
+    home_lng: home.lng,
     social_links: {
       telegram: document.getElementById('in-telegram').value.trim(),
       github: document.getElementById('in-github').value.trim(),
@@ -276,7 +334,7 @@ document.getElementById('saveProfileBtn').addEventListener('click', async () => 
   });
   if (!res.ok) {
     const err = await res.json();
-    showToast(err.error || 'Xatolik yuz berdi');
+    showToast(err.error || 'Something went wrong');
     return;
   }
   currentUser = await res.json();
@@ -284,59 +342,7 @@ document.getElementById('saveProfileBtn').addEventListener('click', async () => 
   document.getElementById('postTypeStep').classList.remove('hidden');
 });
 
-// ============ Audio yozish ============
-document.getElementById('recordBtn').addEventListener('click', async () => {
-  if (mediaRecorder && mediaRecorder.state === 'recording') return;
-
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  mediaRecorder = new MediaRecorder(stream);
-  recordedChunks = [];
-  recordSeconds = 0;
-  document.getElementById('recordBtn').classList.add('recording');
-
-  mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
-  mediaRecorder.onstop = () => {
-    recordedBlob = new Blob(recordedChunks, { type: 'audio/webm' });
-    const player = document.getElementById('previewPlayer');
-    player.src = URL.createObjectURL(recordedBlob);
-    player.classList.remove('hidden');
-    document.getElementById('publishBtn').classList.remove('hidden');
-    document.getElementById('recordBtn').classList.remove('recording');
-    stream.getTracks().forEach(t => t.stop());
-    clearInterval(recordTimerInterval);
-  };
-
-  mediaRecorder.start();
-  recordTimerInterval = setInterval(() => {
-    recordSeconds++;
-    const m = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
-    const s = String(recordSeconds % 60).padStart(2, '0');
-    document.getElementById('recordTimer').textContent = `${m}:${s}`;
-    if (recordSeconds >= 15) mediaRecorder.stop();
-  }, 1000);
-});
-
-document.getElementById('publishBtn').addEventListener('click', async () => {
-  if (!recordedBlob) return;
-
-  const formData = new FormData();
-  formData.append('audio', recordedBlob, 'voice.webm');
-  formData.append('lat', selectedLat);
-  formData.append('lng', selectedLng);
-  formData.append('duration', recordSeconds);
-
-  const res = await fetch('/api/audio', { method: 'POST', body: formData });
-  if (!res.ok) {
-    const err = await res.json();
-    showToast(err.message || err.error || 'Xatolik yuz berdi');
-    return;
-  }
-  hideModal('recorderModal');
-  showToast('Ovozingiz xaritaga joylandi 🎉');
-  loadMarkers();
-});
-
-// ============ Matn posti ============
+// ============ Text post ============
 document.getElementById('publishTextBtn').addEventListener('click', async () => {
   const text = document.getElementById('in-text-post').value.trim();
   if (!text) return;
@@ -344,20 +350,20 @@ document.getElementById('publishTextBtn').addEventListener('click', async () => 
   const res = await fetch('/api/text-post', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, lat: selectedLat, lng: selectedLng }),
+    body: JSON.stringify({ text }),
   });
   if (!res.ok) {
     const err = await res.json();
-    showToast(err.message || err.error || 'Xatolik yuz berdi');
+    showToast(err.message || err.error || 'Something went wrong');
     return;
   }
   document.getElementById('in-text-post').value = '';
   hideModal('recorderModal');
-  showToast('Fikringiz xaritaga joylandi 🎉');
+  showToast('Your thought is on the map');
   loadMarkers();
 });
 
-// ============ Modal yordamchilari ============
+// ============ Modal helpers ============
 function showModal(id) { document.getElementById(id).classList.remove('hidden'); }
 function hideModal(id) { document.getElementById(id).classList.add('hidden'); }
 
