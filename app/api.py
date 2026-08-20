@@ -78,7 +78,7 @@ def update_my_profile():
             if k not in allowed_keys or not v:
                 continue
             if k == "telegram" and isinstance(v, str):
-                v = v.lstrip("@")
+                v = v.replace("t.me/@", "t.me/").lstrip("@")
             cleaned[k] = v
         current_user.social_links = cleaned
 

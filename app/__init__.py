@@ -71,8 +71,11 @@ def create_app():
         for u in users:
             sl = u.social_links or {}
             tg = sl.get("telegram", "")
-            if tg.startswith("@"):
-                sl["telegram"] = tg.lstrip("@")
+            if not tg:
+                continue
+            clean = tg.replace("t.me/@", "t.me/").lstrip("@")
+            if clean != tg:
+                sl["telegram"] = clean
                 u.social_links = sl
                 changed = True
         if changed:
