@@ -132,6 +132,45 @@ html,body{overflow:auto;height:auto !important;}
   box-shadow:0 4px 20px rgba(0,0,0,.4);
 }
 
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:1000;}
+.modal.hidden{display:none;}
+.modal-content{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-md);padding:24px;width:480px;max-width:90vw;
+  max-height:90vh;overflow-y:auto;
+}
+.search-card{width:820px;}
+.modal-top-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.modal-top-row h3{font-family:var(--font-display);font-weight:500;font-size:19px;margin:0;}
+.close-btn{background:none;border:none;color:var(--text-muted);font-size:24px;cursor:pointer;padding:0;line-height:1;}
+.close-btn:hover{color:var(--text);}
+.search-input-wrap{margin-bottom:16px;}
+.search-input-wrap input{
+  width:100%;background:var(--surface-2);border:1px solid var(--border);
+  border-radius:999px;padding:12px 16px;font-size:14px;color:var(--text);
+  font-family:var(--font-body);outline:none;transition:border-color .2s;box-sizing:border-box;
+}
+.search-input-wrap input:focus{border-color:var(--blue-600);}
+.search-input-wrap input::placeholder{color:var(--text-muted);}
+.search-results{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto;}
+.search-user-card{
+  display:flex;align-items:center;gap:12px;padding:12px;
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--radius-md);cursor:pointer;transition:background .15s;
+}
+.search-user-card:hover{background:var(--surface);}
+.search-user-card img{width:40px;height:40px;border-radius:50%;flex-shrink:0;background:var(--surface);}
+.search-user-info{flex:1;min-width:0;}
+.search-user-info .name{font-family:var(--font-display);font-weight:500;font-size:13px;}
+.search-user-info .username{font-size:12px;color:var(--text-muted);}
+.search-user-info .bio{font-size:11px;color:var(--text-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.search-empty{text-align:center;color:var(--text-muted);padding:40px;font-size:14px;}
+
+@media(max-width:600px){
+  .search-card{width:96vw;}
+  .modal-content{padding:16px;}
+}
+
 @media(max-width:600px){
   .profile-main{margin-top:60px;}
   .profile-page-header{flex-wrap:wrap;}

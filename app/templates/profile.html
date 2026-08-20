@@ -28,9 +28,9 @@
 
 <!-- Bottom bar (mobile) -->
 <nav id="bottomBar" class="bottom-bar">
-  <a href="/" class="bb-btn" title="Search" style="text-decoration:none">
+  <button id="bbSearch" class="bb-btn" title="Search">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-  </a>
+  </button>
   <a href="/" class="bb-btn bb-primary" title="Home" style="text-decoration:none">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </a>
@@ -109,6 +109,20 @@
     </div>
   </div>
 </main>
+
+<!-- Search modal -->
+<div id="searchModal" class="modal hidden">
+  <div class="modal-content search-card">
+    <div class="modal-top-row">
+      <h3>Search</h3>
+      <button class="close-btn" onclick="document.getElementById('searchModal').classList.add('hidden')">&times;</button>
+    </div>
+    <div class="search-input-wrap">
+      <input id="searchInput" type="text" placeholder="Search by name or username..." maxlength="80" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <div id="searchResults" class="search-results"></div>
+  </div>
+</div>
 
 <div id="toast" class="toast hidden"></div>
 
@@ -324,6 +338,47 @@ document.getElementById('bbProfile').addEventListener('click', (e) => {
   document.getElementById('bbMenu').classList.toggle('hidden');
 });
 document.addEventListener('click', () => document.getElementById('bbMenu').classList.add('hidden'));
+
+let allSearchUsers = [];
+document.getElementById('bbSearch').addEventListener('click', async () => {
+  document.getElementById('searchModal').classList.remove('hidden');
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchResults').innerHTML = '';
+  if (!allSearchUsers.length) {
+    const res = await fetch('/api/search?q=');
+    if (res.ok) allSearchUsers = await res.json();
+  }
+  renderProfileSearchResults(allSearchUsers);
+});
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  const q = e.target.value.trim().replace(/^@+/, '').toLowerCase();
+  if (!q) { renderProfileSearchResults(allSearchUsers); return; }
+  const filtered = allSearchUsers.filter(u =>
+    (u.full_name || '').toLowerCase().includes(q) ||
+    (u.username || '').toLowerCase().includes(q)
+  );
+  renderProfileSearchResults(filtered);
+});
+function renderProfileSearchResults(users) {
+  const box = document.getElementById('searchResults');
+  if (!users.length) { box.innerHTML = '<div class="search-empty">No users found</div>'; return; }
+  box.innerHTML = users.map(u => `
+    <div class="search-user-card" data-username="${u.username || ''}">
+      <img src="${u.avatar_url || ''}" alt="">
+      <div class="search-user-info">
+        <div class="name">${u.full_name || ''}</div>
+        <div class="username">${u.username ? '@' + u.username : ''}</div>
+        ${u.bio ? `<div class="bio">${u.bio}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+  box.querySelectorAll('.search-user-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.getElementById('searchModal').classList.add('hidden');
+      if (card.dataset.username) window.location.href = '/' + card.dataset.username;
+    });
+  });
+}
 
 loadProfile();
 </script>
