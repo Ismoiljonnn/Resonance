@@ -44,7 +44,7 @@ const globe = Globe()(document.getElementById('globeViz'))
   .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
   .backgroundColor('rgba(0,0,0,0)')
   .atmosphereColor('#8ab4f8')
-  .atmosphereAltitude(0.18)
+  .atmosphereAltitude(0.10)
   .pointOfView({ lat: 41.3, lng: 69.2, altitude: 2.2 })
   .pointLabel(() => '');
 
