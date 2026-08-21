@@ -91,19 +91,27 @@ async function loadMarkers() {
 
   markersById = Object.fromEntries(markers.map(m => [m.id, m]));
   rawMarkers = markers;
+  lastClusterAlt = -1;
   updateGlobeMarkers();
 }
 let rawMarkers = [];
+let lastClusterAlt = -1;
 
-function clusterMarkers(markers, altitude) {
-  if (altitude < 1.2) return markers.map(m => ({ ...m, _cluster: false }));
-  const gridSize = altitude < 1.8 ? 1.5 : altitude < 2.5 ? 3 : 5;
+function getClusterGridSize(altitude) {
+  if (altitude < 1.2) return 0;
+  if (altitude < 1.8) return 1.5;
+  if (altitude < 2.5) return 3;
+  return 5;
+}
+
+function clusterMarkers(markers, gridSize) {
+  if (gridSize === 0) return markers.map(m => ({ ...m, _cluster: false, _items: [m] }));
   const clusters = {};
   markers.forEach(m => {
     const gLat = Math.round(m.lat / gridSize) * gridSize;
     const gLng = Math.round(m.lng / gridSize) * gridSize;
     const key = `${gLat},${gLng}`;
-    if (!clusters[key]) clusters[key] = { lat: gLat + (Math.random() - 0.5) * gridSize * 0.3, lng: gLng + (Math.random() - 0.5) * gridSize * 0.3, _items: [], _cluster: true };
+    if (!clusters[key]) clusters[key] = { lat: gLat + (Math.random() - 0.5) * gridSize * 0.3, lng: gLng + (Math.random() - 0.5) * gridSize * 0.3, _items: [] };
     clusters[key]._items.push(m);
   });
   return Object.values(clusters).map(c => {
@@ -115,7 +123,10 @@ function clusterMarkers(markers, altitude) {
 function updateGlobeMarkers() {
   if (!rawMarkers.length) return;
   const alt = globe.pointOfView().altitude;
-  const data = clusterMarkers(rawMarkers, alt);
+  const grid = getClusterGridSize(alt);
+  if (grid === lastClusterAlt) return;
+  lastClusterAlt = grid;
+  const data = clusterMarkers(rawMarkers, grid);
   globe
     .htmlElementsData(data)
     .htmlLat('lat')
@@ -132,7 +143,7 @@ function updateGlobeMarkers() {
         });
         return el;
       }
-      const item = m._cluster ? m._items[0] : m;
+      const item = m._items ? m._items[0] : m;
       const el = document.createElement('div');
       el.className = 'globe-avatar-marker';
       const img = document.createElement('img');
@@ -153,7 +164,7 @@ setInterval(loadMarkers, 10 * 60 * 1000);
 let _zoomThrottle = null;
 globe.onZoom(() => {
   if (_zoomThrottle) return;
-  _zoomThrottle = setTimeout(() => { _zoomThrottle = null; updateGlobeMarkers(); }, 200);
+  _zoomThrottle = setTimeout(() => { _zoomThrottle = null; updateGlobeMarkers(); }, 500);
 });
 
 // ============ Hover card ============
