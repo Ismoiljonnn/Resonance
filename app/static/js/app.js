@@ -553,6 +553,20 @@ document.getElementById('saveProfileBtn').addEventListener('click', async () => 
   document.getElementById('postTypeStep').classList.remove('hidden');
 });
 
+// ============ Character counter ============
+document.getElementById('in-text-post').addEventListener('input', (e) => {
+  const len = e.target.value.length;
+  const el = document.getElementById('charCount');
+  el.textContent = len;
+  const counter = el.parentElement;
+  counter.classList.toggle('warn', len >= 450 && len < 500);
+  counter.classList.toggle('danger', len >= 500);
+});
+document.getElementById('publishTextBtn').addEventListener('click', () => {
+  document.getElementById('charCount').textContent = '0';
+  document.getElementById('charCount').parentElement.classList.remove('warn','danger');
+});
+
 // ============ Text post ============
 document.getElementById('publishTextBtn').addEventListener('click', async () => {
   const text = document.getElementById('in-text-post').value.trim();
