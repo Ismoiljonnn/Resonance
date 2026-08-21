@@ -1,4 +1,5 @@
 import random
+import calendar
 from datetime import datetime, timedelta, timezone
 
 from flask import Blueprint, request, jsonify, current_app
@@ -10,14 +11,24 @@ from .auth import is_admin
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 
+
+def _utc_epoch(dt):
+    """Convert any datetime (naive=UTC or timezone-aware) to epoch seconds."""
+    if dt is None:
+        return 0
+    if dt.tzinfo is not None:
+        return dt.timestamp()
+    return calendar.timegm(dt.timetuple())
+
 # ---------- Guest mode: no login required ----------
 
 @api_bp.route("/markers")
 def get_markers():
     """Active posts from the last 24 hours shown on the 3D globe"""
-    now = datetime.utcnow()
+    now_ts = _utc_epoch(datetime.utcnow())
+    cutoff = 24 * 3600
     posts = AudioPost.query.filter(AudioPost.is_active == True).all()
-    posts = [p for p in posts if p.created_at and (now - p.created_at) < timedelta(hours=24)]
+    posts = [p for p in posts if (now_ts - _utc_epoch(p.created_at)) < cutoff]
     return jsonify([p.to_map_marker() for p in posts])
 
 

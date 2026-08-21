@@ -1,4 +1,5 @@
 import uuid
+import calendar
 from datetime import datetime, timedelta, timezone
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
@@ -6,6 +7,14 @@ from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy import text
 
 db = SQLAlchemy()
+
+
+def _utc_epoch(dt):
+    if dt is None:
+        return 0
+    if dt.tzinfo is not None:
+        return dt.timestamp()
+    return calendar.timegm(dt.timetuple())
 
 
 def gen_uuid():
@@ -62,11 +71,12 @@ class User(db.Model, UserMixin):
 
     def to_public_dict(self, current_user_id=None):
         """What other users see on this user's public profile card"""
-        now = datetime.utcnow()
+        now_ts = _utc_epoch(datetime.utcnow())
+        cutoff = 24 * 3600
         all_active = self.audio_posts.filter_by(is_active=True).order_by(
             AudioPost.created_at.desc()
         ).all()
-        active_posts = [p for p in all_active if p.created_at and (now - p.created_at) < timedelta(hours=24)]
+        active_posts = [p for p in all_active if (now_ts - _utc_epoch(p.created_at)) < cutoff]
         all_posts = all_active
         total_count = len(all_active)
         return {
