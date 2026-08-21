@@ -174,7 +174,7 @@ function updateGlobeMarkers() {
       if (point._cluster) {
         globe.pointOfView({ lat: point.lat, lng: point.lng, altitude: Math.max(0.8, alt - 1) }, 600);
       } else if (point._item && point._item.author_username) {
-        window.open('/' + point._item.author_username, '_blank');
+        window.location.href = '/' + point._item.author_username;
       }
     });
 
