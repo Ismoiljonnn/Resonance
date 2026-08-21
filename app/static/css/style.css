@@ -342,7 +342,7 @@ body{
 }
 #editProfileBtn:hover{background:var(--surface-2);}
 
-.posts-list{display:flex;flex-direction:column;gap:8px;margin-top:14px;max-height:480px;overflow-y:auto;overflow-x:hidden;}
+.posts-list{display:flex;flex-direction:column;gap:8px;margin-top:14px;max-height:min(80vh,600px);overflow-y:auto;overflow-x:hidden;}
 .posts-list audio{width:100%;height:36px;}
 .post-text-bubble{
   background:var(--surface-2);

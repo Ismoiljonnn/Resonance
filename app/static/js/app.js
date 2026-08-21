@@ -100,6 +100,7 @@ async function loadMarkers() {
     .pointRadius(0.15);
 }
 loadMarkers();
+setInterval(loadMarkers, 10 * 60 * 1000);
 
 // ============ Hover card ============
 const hoverCard = document.getElementById('hoverCard');

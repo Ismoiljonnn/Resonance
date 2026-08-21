@@ -1,8 +1,9 @@
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import text
 
 db = SQLAlchemy()
 
@@ -61,7 +62,7 @@ class User(db.Model, UserMixin):
 
     def to_public_dict(self, current_user_id=None):
         """What other users see on this user's public profile card"""
-        cutoff = datetime.utcnow() - timedelta(hours=24)
+        cutoff = text("NOW() - INTERVAL '24 hours'")
         active_posts = self.audio_posts.filter(
             AudioPost.is_active == True,
             AudioPost.created_at >= cutoff,
