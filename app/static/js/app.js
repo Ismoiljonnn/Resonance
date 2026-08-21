@@ -48,6 +48,12 @@ const globe = Globe()(document.getElementById('globeViz'))
   .pointOfView({ lat: 41.3, lng: 69.2, altitude: 2.2 })
   .pointLabel(() => '');
 
+const controls = globe.controls();
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.4;
+controls.enableDamping = true;
+controls.dampingFactor = 0.1;
+
 window.addEventListener('resize', () => {
   globe.width(window.innerWidth).height(window.innerHeight);
 });
