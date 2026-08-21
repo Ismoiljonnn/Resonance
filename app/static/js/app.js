@@ -94,6 +94,7 @@ async function loadMarkers() {
 }
 let rawMarkers = [];
 let lastClusterAlt = -1;
+let lastClusterRenderAlt = -1;
 
 function getClusterGridSize(altitude) {
   if (altitude < 1.2) return 0;
@@ -137,9 +138,10 @@ function cancelHideHover() {
 function updateGlobeMarkers() {
   if (!rawMarkers.length) return;
   const alt = globe.pointOfView().altitude;
+  if (Math.abs(alt - lastClusterRenderAlt) < 0.3) return;
   const grid = getClusterGridSize(alt);
-  if (grid === lastClusterAlt) return;
   lastClusterAlt = grid;
+  lastClusterRenderAlt = alt;
   const data = clusterMarkers(rawMarkers, grid);
   const clusterScale = Math.max(0.4, Math.min(1, 1.2 / (alt + 0.2)));
 
