@@ -82,38 +82,43 @@
 </nav>
 
 <main class="profile-main">
-  <div class="profile-page-card">
-    <div class="profile-page-header">
+  <div class="pp-header-section">
+    <div class="pp-header-inner">
       <img id="pp-avatar" class="pp-avatar" src="" alt="">
-      <div class="pp-info">
-        <h2 id="pp-name"></h2>
+      <div class="pp-header-right">
+        <div class="pp-header-top">
+          <h2 id="pp-name"></h2>
+          <button id="ppEditBtn" class="btn-outline hidden">Edit profile</button>
+        </div>
         <p id="pp-username" class="pp-muted"></p>
-        <p id="pp-location" class="pp-muted pp-location">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
-          <span id="pp-location-text"></span>
-        </p>
-      </div>
-      <div class="pp-actions">
-        <button id="ppEditBtn" class="btn-outline hidden">Edit profile</button>
+        <div class="pp-stats">
+          <span><strong id="pp-active-count">0</strong> posts</span>
+          <span><strong id="pp-total-count">0</strong> total</span>
+        </div>
       </div>
     </div>
-
-    <p id="pp-bio" class="pp-bio"></p>
-    <div id="pp-links" class="pp-links"></div>
-    <p id="pp-joined" class="pp-muted pp-joined">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      <span id="pp-joined-text"></span>
-    </p>
-
-    <div class="pp-stats">
-      <button class="pp-stats-tab active" data-tab="active"><strong id="pp-active-count">0</strong> <span>Active posts</span></button>
-      <button class="pp-stats-tab" data-tab="total"><strong id="pp-total-count">0</strong> <span>Total posts</span></button>
+    <div class="pp-bio-section">
+      <p id="pp-bio" class="pp-bio"></p>
+      <p id="pp-location" class="pp-muted pp-location">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-6.1-7-11a7 7 0 0114 0c0 4.9-7 11-7 11z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
+        <span id="pp-location-text"></span>
+      </p>
+      <div id="pp-links" class="pp-links"></div>
+      <p id="pp-joined" class="pp-muted pp-joined">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span id="pp-joined-text"></span>
+      </p>
     </div>
-    <div id="pp-posts" class="pp-posts"></div>
   </div>
 
+  <div class="pp-tabs-divider">
+    <button class="pp-tab active" data-tab="active">Active</button>
+    <button class="pp-tab" data-tab="total">All posts</button>
+  </div>
+  <div id="pp-posts" class="pp-posts"></div>
+
   <!-- Edit form (hidden by default) -->
-  <div id="pp-edit" class="profile-page-card hidden">
+  <div id="pp-edit" class="pp-edit-section hidden">
     <label class="field-label">Username</label>
     <input id="edit-username" maxlength="80" placeholder="username" autocomplete="new-password">
     <label class="field-label">Bio</label>
@@ -293,11 +298,15 @@ async function deletePost(postId, btn) {
 
 function showReadMode() {
   document.getElementById('pp-edit').classList.add('hidden');
-  document.querySelector('.profile-page-card').classList.remove('hidden');
+  document.querySelector('.pp-header-section').classList.remove('hidden');
+  document.querySelector('.pp-tabs-divider').classList.remove('hidden');
+  document.getElementById('pp-posts').classList.remove('hidden');
 }
 
 function showEditMode() {
-  document.querySelector('.profile-page-card').classList.add('hidden');
+  document.querySelector('.pp-header-section').classList.add('hidden');
+  document.querySelector('.pp-tabs-divider').classList.add('hidden');
+  document.getElementById('pp-posts').classList.add('hidden');
   document.getElementById('pp-edit').classList.remove('hidden');
 }
 
@@ -374,9 +383,9 @@ async function loadProfile() {
 
   document.getElementById('ppEditBtn').classList.toggle('hidden', !isOwn);
 
-  document.querySelectorAll('.pp-stats-tab').forEach(tab => {
+  document.querySelectorAll('.pp-tab').forEach(tab => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.pp-stats-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.pp-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       renderPosts(tab.dataset.tab === 'total' ? allPosts : activePosts, isOwn);
     });
