@@ -62,7 +62,7 @@ class User(db.Model, UserMixin):
 
     def to_public_dict(self, current_user_id=None):
         """What other users see on this user's public profile card"""
-        cutoff = text("NOW() - INTERVAL '24 hours'")
+        cutoff = datetime.utcnow() - timedelta(hours=24)
         active_posts = self.audio_posts.filter(
             AudioPost.is_active == True,
             AudioPost.created_at >= cutoff,
