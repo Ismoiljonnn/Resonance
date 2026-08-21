@@ -4,69 +4,108 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Resonance — Set up your profile</title>
-<meta name="description" content="Set up your Resonance profile to start sharing thoughts on the map.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%231a1a2e' stroke='%238ab4f8' stroke-width='4'/><ellipse cx='50' cy='50' rx='20' ry='44' fill='none' stroke='%238ab4f8' stroke-width='2.5' opacity='.6'/><ellipse cx='50' cy='50' rx='44' ry='20' fill='none' stroke='%238ab4f8' stroke-width='2.5' opacity='.6'/><circle cx='50' cy='50' r='45' fill='none' stroke='%238ab4f8' stroke-width='4'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
 <style>
-html,body{height:auto !important;overflow:auto !important;margin:0;padding:0;background:var(--bg);font-family:var(--font-body);color:var(--text);}
-body{display:flex;justify-content:center;min-height:100vh;min-height:100dvh;}
-.register-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px 28px;margin:32px 16px;box-sizing:border-box;align-self:flex-start;}
-.register-card h2{font-family:var(--font-display);font-weight:500;font-size:22px;margin:0 0 4px;text-align:center;}
-.register-card .muted{text-align:center;font-size:14px;color:var(--text-muted);margin:0 0 20px;line-height:1.4;}
-.register-card .field-label{display:block;font-size:12px;font-weight:500;color:var(--text-muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.4px;}
-.register-card input,.register-card select,.register-card textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-2);color:var(--text);font-size:14px;font-family:var(--font-body);box-sizing:border-box;}
-.register-card input:focus,.register-card select:focus,.register-card textarea:focus{outline:none;border-color:var(--blue);}
-.register-card .optional{color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0;}
-.register-card .field-group-label{font-size:12px;font-weight:500;color:var(--text-muted);margin:16px 0 4px;text-transform:uppercase;letter-spacing:.4px;}
-.register-card .btn-primary{width:100%;padding:12px;margin-top:20px;font-size:15px;font-weight:500;border:none;border-radius:var(--radius);background:var(--blue);color:#fff;cursor:pointer;font-family:var(--font-display);transition:opacity .15s;}
-.register-card .btn-primary:hover{opacity:.9;}
-@media(max-height:700px){.register-card{margin-top:12px;padding:24px 20px;}.register-card .field-label{margin:8px 0 3px;}.register-card .btn-primary{margin-top:14px;}}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:auto !important;overflow:auto !important;background:#fff;font-family:'Roboto',-apple-system,BlinkMacSystemFont,sans-serif;color:#1a1a1a;}
+body{display:flex;justify-content:center;align-items:flex-start;min-height:100vh;min-height:100dvh;padding:40px 16px;}
+
+.register-wrap{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;}
+
+.register-logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#d97706,#f59e0b);margin-bottom:24px;flex-shrink:0;}
+.register-logo svg{width:100%;height:100%;}
+
+h1{font-size:20px;font-weight:500;text-align:center;margin-bottom:4px;color:#1a1a1a;}
+.subtitle{font-size:14px;color:#6b6b6b;text-align:center;margin-bottom:28px;line-height:1.4;}
+
+.form-group{width:100%;margin-bottom:16px;}
+.form-group label{display:block;font-size:13px;font-weight:500;color:#1a1a1a;margin-bottom:6px;}
+.form-group input,.form-group select{width:100%;padding:10px 12px;border:1px solid #d4d4d4;border-radius:8px;background:#fff;color:#1a1a1a;font-size:14px;font-family:inherit;transition:border-color .15s,box-shadow .15s;appearance:auto;}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:#1a1a1a;box-shadow:0 0 0 1px #1a1a1a;}
+.form-group input::placeholder{color:#a3a3a3;}
+.form-group .optional-tag{color:#a3a3a3;font-weight:400;font-size:12px;margin-left:4px;}
+
+.section-label{width:100%;font-size:13px;font-weight:500;color:#6b6b6b;margin:24px 0 12px;padding-bottom:8px;border-bottom:1px solid #e5e5e5;}
+
+.btn-submit{width:100%;padding:11px 16px;margin-top:8px;font-size:14px;font-weight:500;border:none;border-radius:8px;background:#1a1a1a;color:#fff;cursor:pointer;font-family:inherit;transition:opacity .15s;}
+.btn-submit:hover{opacity:.88;}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;transition:opacity .2s;pointer-events:none;}
+#toast.hidden{opacity:0;}
+
+@media(max-width:440px){
+  body{padding:24px 16px;}
+  h1{font-size:18px;}
+}
 </style>
 </head>
 <body>
 
-<div class="register-card">
-  <h2>Set up your profile</h2>
-  <p class="muted">This is shown to others on the map. Your region places you on the globe — there's no need to drop a pin yourself.</p>
+<div class="register-wrap">
+  <div class="register-logo">
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="45" stroke="#fff" stroke-width="4" fill="none"/>
+      <ellipse cx="50" cy="50" rx="20" ry="44" stroke="#fff" stroke-width="2.5" opacity=".7" fill="none"/>
+      <ellipse cx="50" cy="50" rx="44" ry="20" stroke="#fff" stroke-width="2.5" opacity=".7" fill="none"/>
+    </svg>
+  </div>
 
-  <label class="field-label">Username *</label>
-  <input id="in-username" placeholder="username" maxlength="80" autocomplete="new-password">
+  <h1>Set up your profile</h1>
+  <p class="subtitle">Choose how others see you on the map.</p>
 
-  <label class="field-label">Bio *</label>
-  <input id="in-bio" placeholder="bio" maxlength="200" autocomplete="new-password">
+  <div class="form-group">
+    <label>Username</label>
+    <input id="in-username" placeholder="e.g. alex" maxlength="80" autocomplete="new-password">
+  </div>
 
-  <label class="field-label">Country *</label>
-  <select id="in-country"></select>
+  <div class="form-group">
+    <label>Bio</label>
+    <input id="in-bio" placeholder="A short description about you" maxlength="200" autocomplete="new-password">
+  </div>
 
-  <label class="field-label">City <span class="optional">(optional)</span></label>
-  <input id="in-city" placeholder="city" autocomplete="new-password">
+  <div class="form-group">
+    <label>Country</label>
+    <select id="in-country"></select>
+  </div>
 
-  <div class="field-group-label">Social links <span class="optional">(optional)</span></div>
+  <div class="form-group">
+    <label>City <span class="optional-tag">optional</span></label>
+    <input id="in-city" placeholder="e.g. Tashkent" autocomplete="new-password">
+  </div>
 
-  <label class="field-label">Telegram</label>
-  <input id="in-telegram" placeholder="username" autocomplete="new-password">
+  <div class="section-label">Social links <span class="optional-tag">optional</span></div>
 
-  <label class="field-label">GitHub</label>
-  <input id="in-github" placeholder="username" autocomplete="new-password">
+  <div class="form-group">
+    <label>Telegram</label>
+    <input id="in-telegram" placeholder="username" autocomplete="new-password">
+  </div>
 
-  <label class="field-label">Instagram</label>
-  <input id="in-instagram" placeholder="username" autocomplete="new-password">
+  <div class="form-group">
+    <label>GitHub</label>
+    <input id="in-github" placeholder="username" autocomplete="new-password">
+  </div>
 
-  <label class="field-label">Website <span class="optional">(optional)</span></label>
-  <input id="in-website" placeholder="yoursite.com" autocomplete="new-password">
+  <div class="form-group">
+    <label>Instagram</label>
+    <input id="in-instagram" placeholder="username" autocomplete="new-password">
+  </div>
 
-  <button id="saveProfileBtn" class="btn-primary">Save and continue</button>
+  <div class="form-group">
+    <label>Website <span class="optional-tag">optional</span></label>
+    <input id="in-website" placeholder="yoursite.com" autocomplete="new-password">
+  </div>
+
+  <button id="saveProfileBtn" class="btn-submit">Continue</button>
 </div>
 
-<div id="toast" class="toast hidden"></div>
+<div id="toast" class="hidden"></div>
 
 <script src="{{ url_for('static', filename='js/countries.js') }}"></script>
 <script>
-function escapeHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
 function buildUrl(v,prefix){v=(v||'').trim();if(!v)return'';return v.startsWith('http')?v:prefix+v;}
 function jitterCoords(bLat,bLng){const s=2.5;return{lat:bLat+(Math.random()-.5)*s,lng:bLng+(Math.random()-.5)*s};}
 
@@ -96,10 +135,13 @@ window.addEventListener('DOMContentLoaded',async()=>{
 });
 
 document.getElementById('saveProfileBtn').addEventListener('click',async()=>{
+  const btn=document.getElementById('saveProfileBtn');
   const country=document.getElementById('in-country').value;
   if(!country){showToast('Please choose your country');return;}
   const base=COUNTRY_COORDS[country];
   const home=jitterCoords(base.lat,base.lng);
+
+  btn.disabled=true;btn.textContent='Saving...';
 
   const payload={
     username:document.getElementById('in-username').value.trim(),
@@ -120,7 +162,7 @@ document.getElementById('saveProfileBtn').addEventListener('click',async()=>{
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify(payload),
   });
-  if(!res.ok){const err=await res.json();showToast(err.error||'Something went wrong');return;}
+  if(!res.ok){const err=await res.json();showToast(err.error||'Something went wrong');btn.disabled=false;btn.textContent='Continue';return;}
   window.location.href='/';
 });
 </script>
