@@ -434,3 +434,21 @@ body{
 /* ===== Scrollbar ===== */
 ::-webkit-scrollbar{width:6px;}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:10px;}
+
+/* ===== Skeletons ===== */
+@keyframes shimmer{
+  0%{background-position:-400px 0;}
+  100%{background-position:400px 0;}
+}
+.skeleton{
+  background:linear-gradient(90deg,var(--surface-2) 25%,rgba(255,255,255,0.06) 50%,var(--surface-2) 75%);
+  background-size:800px 100%;
+  animation:shimmer 1.5s ease-in-out infinite;
+  border-radius:var(--radius-sm);
+}
+.skeleton-circle{border-radius:50%;}
+.skeleton-line{height:12px;border-radius:6px;}
+.skeleton-line.w60{width:60%;}
+.skeleton-line.w40{width:40%;}
+.skeleton-line.w80{width:80%;}
+.skeleton-line.w100{width:100%;}

@@ -82,6 +82,43 @@
 </nav>
 
 <main class="profile-main">
+  <!-- Skeleton (shown while loading) -->
+  <div id="pp-skeleton" class="pp-skeleton">
+    <div class="pp-skeleton-header">
+      <div class="skeleton skeleton-circle pp-skeleton-avatar"></div>
+      <div class="pp-skeleton-info">
+        <div class="skeleton skeleton-line pp-skeleton-name"></div>
+        <div class="skeleton skeleton-line pp-skeleton-username"></div>
+        <div class="pp-skeleton-stats">
+          <div class="skeleton skeleton-line pp-skeleton-stat"></div>
+          <div class="skeleton skeleton-line pp-skeleton-stat"></div>
+        </div>
+      </div>
+    </div>
+    <div class="pp-skeleton-bio">
+      <div class="skeleton skeleton-line w80"></div>
+      <div class="skeleton skeleton-line w60"></div>
+    </div>
+    <div class="pp-skeleton-posts">
+      <div class="pp-skeleton-post">
+        <div class="skeleton skeleton-line w100"></div>
+        <div class="skeleton skeleton-line w80"></div>
+        <div class="skeleton skeleton-line pp-skeleton-post-date"></div>
+      </div>
+      <div class="pp-skeleton-post">
+        <div class="skeleton skeleton-line w100"></div>
+        <div class="skeleton skeleton-line w60"></div>
+        <div class="skeleton skeleton-line pp-skeleton-post-date"></div>
+      </div>
+      <div class="pp-skeleton-post">
+        <div class="skeleton skeleton-line w80"></div>
+        <div class="skeleton skeleton-line pp-skeleton-post-date"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actual profile content (hidden while loading) -->
+  <div id="pp-content" class="hidden">
   <div class="pp-header-section">
     <div class="pp-header-inner">
       <img id="pp-avatar" class="pp-avatar" src="" alt="">
@@ -140,6 +177,7 @@
       <button id="ppSaveEdit" class="btn-primary">Save</button>
     </div>
   </div>
+  </div><!-- /pp-content -->
 </main>
 
 <!-- Search modal -->
@@ -153,6 +191,11 @@
       <input id="searchInput" type="text" placeholder="Search by name or username..." maxlength="80" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
     <div id="searchResults" class="search-results"></div>
+    <div id="searchSkeleton" class="search-results hidden">
+      <div class="search-user-card"><div class="skeleton skeleton-circle" style="width:40px;height:40px"></div><div style="flex:1;display:flex;flex-direction:column;gap:6px"><div class="skeleton skeleton-line w60"></div><div class="skeleton skeleton-line w40"></div></div></div>
+      <div class="search-user-card"><div class="skeleton skeleton-circle" style="width:40px;height:40px"></div><div style="flex:1;display:flex;flex-direction:column;gap:6px"><div class="skeleton skeleton-line w80"></div><div class="skeleton skeleton-line w40"></div></div></div>
+      <div class="search-user-card"><div class="skeleton skeleton-circle" style="width:40px;height:40px"></div><div style="flex:1;display:flex;flex-direction:column;gap:6px"><div class="skeleton skeleton-line w60"></div><div class="skeleton skeleton-line w40"></div></div></div>
+    </div>
   </div>
 </div>
 
@@ -340,10 +383,14 @@ async function loadProfile() {
 
   const res = await fetch(`/api/profile/by-username/${username}`);
   if (!res.ok) {
+    document.getElementById('pp-skeleton').classList.add('hidden');
     document.querySelector('.profile-main').innerHTML = '<div class="pp-empty">User not found</div>';
     return;
   }
   profileData = await res.json();
+
+  document.getElementById('pp-skeleton').classList.add('hidden');
+  document.getElementById('pp-content').classList.remove('hidden');
 
   const isOwn = currentUser && currentUser.id === profileData.id;
 
@@ -429,7 +476,14 @@ document.getElementById('searchTrigger').addEventListener('click', () => {
   document.getElementById('searchInput').value = '';
   document.getElementById('searchResults').innerHTML = '';
   if (!allSearchUsers.length) {
-    fetch('/api/search?q=').then(r => r.json()).then(d => { allSearchUsers = d; renderProfileSearchResults(d); });
+    document.getElementById('searchSkeleton').classList.remove('hidden');
+    document.getElementById('searchResults').classList.add('hidden');
+    fetch('/api/search?q=').then(r => r.json()).then(d => {
+      allSearchUsers = d;
+      document.getElementById('searchSkeleton').classList.add('hidden');
+      document.getElementById('searchResults').classList.remove('hidden');
+      renderProfileSearchResults(d);
+    });
   } else {
     renderProfileSearchResults(allSearchUsers);
   }
@@ -465,8 +519,12 @@ document.getElementById('bbSearch').addEventListener('click', async () => {
   document.getElementById('searchInput').value = '';
   document.getElementById('searchResults').innerHTML = '';
   if (!allSearchUsers.length) {
+    document.getElementById('searchSkeleton').classList.remove('hidden');
+    document.getElementById('searchResults').classList.add('hidden');
     const res = await fetch('/api/search?q=');
     if (res.ok) allSearchUsers = await res.json();
+    document.getElementById('searchSkeleton').classList.add('hidden');
+    document.getElementById('searchResults').classList.remove('hidden');
   }
   renderProfileSearchResults(allSearchUsers);
 });
