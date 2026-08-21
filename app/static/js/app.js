@@ -166,6 +166,8 @@ function updateGlobeMarkers() {
       const item = m._items ? m._items[0] : m;
       const el = document.createElement('div');
       el.className = 'globe-avatar-marker';
+      el.style.width = (32 * clusterScale) + 'px';
+      el.style.height = (32 * clusterScale) + 'px';
       const img = document.createElement('img');
       img.src = item.author_avatar || '';
       img.onerror = () => { img.style.display = 'none'; el.style.background = markerColor(item.id); };
