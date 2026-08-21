@@ -28,8 +28,31 @@ def get_markers():
     now_ts = _utc_epoch(datetime.utcnow())
     cutoff = 24 * 3600
     posts = AudioPost.query.filter(AudioPost.is_active == True).all()
-    posts = [p for p in posts if (now_ts - _utc_epoch(p.created_at)) < cutoff]
-    return jsonify([p.to_map_marker() for p in posts])
+    filtered = [p for p in posts if (now_ts - _utc_epoch(p.created_at)) < cutoff]
+    return jsonify([p.to_map_marker() for p in filtered])
+
+
+@api_bp.route("/debug/timestamps")
+def debug_timestamps():
+    """Debug: shows actual created_at values and comparison results"""
+    now = datetime.utcnow()
+    now_ts = _utc_epoch(now)
+    cutoff = 24 * 3600
+    posts = AudioPost.query.filter(AudioPost.is_active == True).order_by(AudioPost.created_at.desc()).limit(20).all()
+    return jsonify({
+        "now_utc": str(now),
+        "now_epoch": now_ts,
+        "cutoff_seconds": cutoff,
+        "posts": [{
+            "id": p.id[:8],
+            "created_at": str(p.created_at),
+            "created_at_type": type(p.created_at).__name__,
+            "created_at_tzinfo": str(getattr(p.created_at, 'tzinfo', 'NONE')),
+            "created_at_epoch": _utc_epoch(p.created_at),
+            "age_hours": round((now_ts - _utc_epoch(p.created_at)) / 3600, 1),
+            "would_show": (now_ts - _utc_epoch(p.created_at)) < cutoff,
+        } for p in posts]
+    })
 
 
 @api_bp.route("/profile/<user_id>")
