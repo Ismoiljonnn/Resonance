@@ -49,7 +49,7 @@ html,body{overflow:auto;height:auto !important;}
 .pp-tab.active{color:var(--text);border-bottom-color:var(--text);}
 
 /* ---- Posts ---- */
-.pp-posts{display:flex;flex-direction:column;gap:1px;padding-top:1px;}
+.pp-posts{display:flex;flex-direction:column;gap:1px;padding-top:1px;padding-left:16px;padding-right:16px;}
 .pp-post-card{
   background:var(--surface);border-bottom:1px solid var(--border);
   padding:16px 0;
