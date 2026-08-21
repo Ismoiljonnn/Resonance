@@ -46,9 +46,7 @@ const globe = Globe()(document.getElementById('globeViz'))
   .atmosphereColor('#8ab4f8')
   .atmosphereAltitude(0.18)
   .pointOfView({ lat: 41.3, lng: 69.2, altitude: 2.2 })
-  .pointLabel(() => '')
-  .onPointHover(handlePointHover)
-  .onPointClick(handlePointClick);
+  .pointLabel(() => '');
 
 window.addEventListener('resize', () => {
   globe.width(window.innerWidth).height(window.innerHeight);
@@ -144,11 +142,45 @@ function updateGlobeMarkers() {
   lastClusterAlt = grid;
   const data = clusterMarkers(rawMarkers, grid);
   const clusterScale = Math.max(0.4, Math.min(1, 1.2 / (alt + 0.2)));
+
+  const pointsData = data.map(m => {
+    if (m._cluster && m._count > 1) {
+      return { id: m.id, lat: m.lat, lng: m.lng, _cluster: true, _clusterData: m };
+    }
+    const item = m._items ? m._items[0] : m;
+    return { id: item.id, lat: item.lat, lng: item.lng, _cluster: false, _item: item };
+  });
+
+  globe
+    .pointsData(pointsData)
+    .pointLat('lat')
+    .pointLng('lng')
+    .pointAltitude(0.012)
+    .pointRadius(d => d._cluster ? 0.3 * clusterScale : 0.2 * clusterScale)
+    .pointColor(() => 'rgba(0,0,0,0.001)')
+    .onPointHover(point => {
+      if (!point) { scheduleHideHover(); return; }
+      cancelHideHover();
+      if (point._cluster) {
+        handlePointHover({ author_name: point._clusterData._count + ' users', author_avatar: '', author_city: '', text_content: 'Click to zoom in', created_at: null });
+      } else {
+        handlePointHover(point._item);
+      }
+    })
+    .onPointClick(point => {
+      if (!point) return;
+      if (point._cluster) {
+        globe.pointOfView({ lat: point.lat, lng: point.lng, altitude: Math.max(0.8, alt - 1) }, 600);
+      } else if (point._item && point._item.author_username) {
+        window.open('/' + point._item.author_username, '_blank');
+      }
+    });
+
   globe
     .htmlElementsData(data)
     .htmlLat('lat')
     .htmlLng('lng')
-    .htmlAltitude(0.012)
+    .htmlAltitude(0.013)
     .htmlElement(m => {
       if (m._cluster && m._count > 1) {
         const el = document.createElement('div');
@@ -157,10 +189,6 @@ function updateGlobeMarkers() {
         el.style.height = (40 * clusterScale) + 'px';
         el.style.fontSize = (14 * clusterScale) + 'px';
         el.textContent = m._count;
-        el.addEventListener('pointerdown', (e) => {
-          e.stopPropagation();
-          globe.pointOfView({ lat: m.lat, lng: m.lng, altitude: Math.max(0.8, alt - 1) }, 600);
-        });
         return el;
       }
       const item = m._items ? m._items[0] : m;
@@ -172,11 +200,6 @@ function updateGlobeMarkers() {
       img.src = item.author_avatar || '';
       img.onerror = () => { img.style.display = 'none'; el.style.background = markerColor(item.id); };
       el.appendChild(img);
-      el.style.cursor = 'pointer';
-      el.addEventListener('pointerdown', (e) => { e.stopPropagation(); handlePointClick(item); });
-      el.addEventListener('pointerenter', () => { cancelHideHover(); handlePointHover(item); });
-      el.addEventListener('pointerleave', scheduleHideHover);
-      el.addEventListener('pointermove', cancelHideHover);
       return el;
     });
 }
@@ -254,16 +277,6 @@ async function deleteProfilePost(postId, element) {
   countEl.textContent = Math.max(0, parseInt(countEl.textContent) - 1);
 }
 
-function handlePointClick(point) {
-  if (!point) return;
-  hoverCard.classList.add('hidden');
-  if (point.author_username) {
-    window.open('/' + point.author_username, '_blank');
-  }
-}
-
-// ============ Toast ============
-let toastTimeout;
 function showToast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg;
