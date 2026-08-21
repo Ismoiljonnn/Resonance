@@ -234,7 +234,9 @@ async function deleteProfilePost(postId, element) {
 function handlePointClick(point) {
   if (!point) return;
   hoverCard.classList.add('hidden');
-  openProfileCard(point.author_id);
+  if (point.author_username) {
+    window.open('/' + point.author_username, '_blank');
+  }
 }
 
 // ============ Toast ============

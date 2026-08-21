@@ -136,6 +136,7 @@ class AudioPost(db.Model):
             "lat": self.lat,
             "lng": self.lng,
             "author_id": self.author.id,
+            "author_username": self.author.username or '',
             "author_avatar": self.author.avatar_url,
             "author_name": self.author.full_name,
             "author_city": self.author.location_city or '',
