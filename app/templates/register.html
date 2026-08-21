@@ -24,6 +24,7 @@ h1{font-size:20px;font-weight:500;text-align:center;margin-bottom:4px;color:#e8e
 .form-group input:focus,.form-group select:focus{outline:none;border-color:#8ab4f8;box-shadow:0 0 0 1px #8ab4f8;}
 .form-group input::placeholder{color:#9aa0a6;}
 .form-group .optional-tag{color:#9aa0a6;font-weight:400;font-size:12px;margin-left:4px;}
+.form-group .required-tag{color:#f28b82;font-weight:400;font-size:12px;margin-left:4px;}
 
 .section-label{width:100%;font-size:13px;font-weight:500;color:#9aa0a6;margin:24px 0 12px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.10);}
 
@@ -47,18 +48,18 @@ h1{font-size:20px;font-weight:500;text-align:center;margin-bottom:4px;color:#e8e
   <p class="subtitle">Choose how others see you on the map.</p>
 
   <div class="form-group">
-    <label>Username</label>
+    <label>Username <span class="required-tag">*</span></label>
     <input id="in-username" placeholder="e.g. alex" maxlength="80" autocomplete="new-password">
   </div>
 
   <div class="form-group">
-    <label>Bio</label>
+    <label>Bio <span class="optional-tag">optional</span></label>
     <input id="in-bio" placeholder="A short description about you" maxlength="200" autocomplete="new-password">
   </div>
 
   <div class="form-group">
-    <label>Country</label>
-    <select id="in-country"></select>
+    <label>Country <span class="required-tag">*</span></label>
+    <select id="in-country"><option value="" disabled selected>Select country</option></select>
   </div>
 
   <div class="form-group">
@@ -100,7 +101,8 @@ function jitterCoords(bLat,bLng){const s=2.5;return{lat:bLat+(Math.random()-.5)*
 
 function populateCountrySelect(sel){
   const sorted=[...COUNTRIES].sort((a,b)=>a[0].localeCompare(b[0]));
-  sel.innerHTML=sorted.map(([n])=>`<option value="${n}">${n}</option>`).join('');
+  const opts=sorted.map(([n])=>`<option value="${n}">${n}</option>`).join('');
+  sel.innerHTML=`<option value="" disabled selected>Select country</option>`+opts;
 }
 
 let toastTimeout;
@@ -125,8 +127,10 @@ window.addEventListener('DOMContentLoaded',async()=>{
 
 document.getElementById('saveProfileBtn').addEventListener('click',async()=>{
   const btn=document.getElementById('saveProfileBtn');
+  const username=document.getElementById('in-username').value.trim();
+  if(!username){showToast('Username is required');return;}
   const country=document.getElementById('in-country').value;
-  if(!country){showToast('Please choose your country');return;}
+  if(!country){showToast('Country is required');return;}
   const base=COUNTRY_COORDS[country];
   const home=jitterCoords(base.lat,base.lng);
 
