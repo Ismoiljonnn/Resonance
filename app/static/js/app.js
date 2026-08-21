@@ -111,13 +111,29 @@ function clusterMarkers(markers, gridSize) {
     const gLat = Math.round(m.lat / gridSize) * gridSize;
     const gLng = Math.round(m.lng / gridSize) * gridSize;
     const key = `${gLat},${gLng}`;
-    if (!clusters[key]) clusters[key] = { lat: gLat + (Math.random() - 0.5) * gridSize * 0.3, lng: gLng + (Math.random() - 0.5) * gridSize * 0.3, _items: [] };
+    if (!clusters[key]) {
+      const c = { _latSum: 0, _lngSum: 0, _items: [] };
+      clusters[key] = c;
+    }
+    clusters[key]._latSum += m.lat;
+    clusters[key]._lngSum += m.lng;
     clusters[key]._items.push(m);
   });
   return Object.values(clusters).map(c => {
     if (c._items.length === 1) return { ...c._items[0], _cluster: false };
-    return { id: 'cluster-' + c.lat + ',' + c.lng, lat: c.lat, lng: c.lng, _cluster: true, _count: c._items.length, _items: c._items, author_avatar: c._items[0].author_avatar };
+    const avgLat = c._latSum / c._items.length;
+    const avgLng = c._lngSum / c._items.length;
+    return { id: 'cluster-' + avgLat.toFixed(2) + ',' + avgLng.toFixed(2), lat: avgLat, lng: avgLng, _cluster: true, _count: c._items.length, _items: c._items, author_avatar: c._items[0].author_avatar };
   });
+}
+
+let _hoverTimer = null;
+function scheduleHideHover() {
+  clearTimeout(_hoverTimer);
+  _hoverTimer = setTimeout(() => handlePointHover(null), 250);
+}
+function cancelHideHover() {
+  clearTimeout(_hoverTimer);
 }
 
 function updateGlobeMarkers() {
@@ -127,6 +143,7 @@ function updateGlobeMarkers() {
   if (grid === lastClusterAlt) return;
   lastClusterAlt = grid;
   const data = clusterMarkers(rawMarkers, grid);
+  const clusterScale = Math.max(0.4, Math.min(1, 1.2 / (alt + 0.2)));
   globe
     .htmlElementsData(data)
     .htmlLat('lat')
@@ -136,6 +153,9 @@ function updateGlobeMarkers() {
       if (m._cluster && m._count > 1) {
         const el = document.createElement('div');
         el.className = 'globe-cluster-marker';
+        el.style.width = (40 * clusterScale) + 'px';
+        el.style.height = (40 * clusterScale) + 'px';
+        el.style.fontSize = (14 * clusterScale) + 'px';
         el.textContent = m._count;
         el.addEventListener('pointerdown', (e) => {
           e.stopPropagation();
@@ -152,8 +172,9 @@ function updateGlobeMarkers() {
       el.appendChild(img);
       el.style.cursor = 'pointer';
       el.addEventListener('pointerdown', (e) => { e.stopPropagation(); handlePointClick(item); });
-      el.addEventListener('pointerenter', () => handlePointHover(item));
-      el.addEventListener('pointerleave', () => handlePointHover(null));
+      el.addEventListener('pointerenter', () => { cancelHideHover(); handlePointHover(item); });
+      el.addEventListener('pointerleave', scheduleHideHover);
+      el.addEventListener('pointermove', cancelHideHover);
       return el;
     });
 }
