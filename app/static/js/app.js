@@ -144,10 +144,15 @@ function clusterMarkers(markers, gridSize) {
 let _hoverTimer = null;
 function scheduleHideHover() {
   clearTimeout(_hoverTimer);
-  _hoverTimer = setTimeout(() => handlePointHover(null), 250);
+  _hoverTimer = setTimeout(() => {
+    handlePointHover(null);
+    startAutoRotateDelay();
+  }, 250);
 }
 function cancelHideHover() {
   clearTimeout(_hoverTimer);
+  controls.autoRotate = false;
+  clearTimeout(autoRotateTimer);
 }
 
 function updateGlobeMarkers() {
