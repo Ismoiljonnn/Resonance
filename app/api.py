@@ -1,5 +1,5 @@
 import random
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 from flask import Blueprint, request, jsonify, current_app
 from flask_login import login_required, current_user
@@ -14,7 +14,7 @@ api_bp = Blueprint("api", __name__, url_prefix="/api")
 @api_bp.route("/markers")
 def get_markers():
     """Active posts from the last 24 hours shown on the 3D globe"""
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+    cutoff = datetime.utcnow() - timedelta(hours=24)
     posts = AudioPost.query.filter(
         AudioPost.is_active == True,
         AudioPost.created_at >= cutoff,
