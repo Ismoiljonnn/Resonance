@@ -42,6 +42,10 @@ def create_app():
     def index():
         return render_template("index.html")
 
+    @main_bp.route("/register")
+    def register_page():
+        return render_template("register.html")
+
     # Share link: /post/<id> — kept for URL compatibility
     @main_bp.route("/post/<post_id>")
     def view_post(post_id):

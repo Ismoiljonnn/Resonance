@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resonance — Set up your profile</title>
+<meta name="description" content="Set up your Resonance profile to start sharing thoughts on the map.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%231a1a2e' stroke='%238ab4f8' stroke-width='4'/><ellipse cx='50' cy='50' rx='20' ry='44' fill='none' stroke='%238ab4f8' stroke-width='2.5' opacity='.6'/><ellipse cx='50' cy='50' rx='44' ry='20' fill='none' stroke='%238ab4f8' stroke-width='2.5' opacity='.6'/><circle cx='50' cy='50' r='45' fill='none' stroke='%238ab4f8' stroke-width='4'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+<style>
+body{background:var(--bg);font-family:var(--font-body);color:var(--text);margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px;}
+.register-card{width:100%;max-width:480px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:36px 32px;}
+.register-card h2{font-family:var(--font-display);font-weight:500;font-size:22px;margin:0 0 4px;text-align:center;}
+.register-card .muted{text-align:center;font-size:14px;color:var(--text-muted);margin:0 0 24px;}
+.register-card .field-label{display:block;font-size:12px;font-weight:500;color:var(--text-muted);margin:14px 0 5px;text-transform:uppercase;letter-spacing:.4px;}
+.register-card input,.register-card select,.register-card textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-2);color:var(--text);font-size:14px;font-family:var(--font-body);box-sizing:border-box;}
+.register-card input:focus,.register-card select:focus,.register-card textarea:focus{outline:none;border-color:var(--blue);}
+.register-card .optional{color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0;}
+.register-card .field-group-label{font-size:12px;font-weight:500;color:var(--text-muted);margin:20px 0 4px;text-transform:uppercase;letter-spacing:.4px;}
+.register-card .btn-primary{width:100%;padding:12px;margin-top:24px;font-size:15px;font-weight:500;border:none;border-radius:var(--radius);background:var(--blue);color:#fff;cursor:pointer;font-family:var(--font-display);transition:opacity .15s;}
+.register-card .btn-primary:hover{opacity:.9;}
+.register-card .back-link{text-align:center;margin-top:16px;font-size:13px;}
+.register-card .back-link a{color:var(--text-muted);text-decoration:none;}
+.register-card .back-link a:hover{color:var(--text);}
+</style>
+</head>
+<body>
+
+<div class="register-card">
+  <h2>Set up your profile</h2>
+  <p class="muted">This is shown to others on the map. Your region places you on the globe — there's no need to drop a pin yourself.</p>
+
+  <label class="field-label">Username *</label>
+  <input id="in-username" placeholder="username" maxlength="80" autocomplete="new-password">
+
+  <label class="field-label">Bio *</label>
+  <input id="in-bio" placeholder="bio" maxlength="200" autocomplete="new-password">
+
+  <label class="field-label">Country *</label>
+  <select id="in-country"></select>
+
+  <label class="field-label">City <span class="optional">(optional)</span></label>
+  <input id="in-city" placeholder="city" autocomplete="new-password">
+
+  <div class="field-group-label">Social links <span class="optional">(optional)</span></div>
+
+  <label class="field-label">Telegram</label>
+  <input id="in-telegram" placeholder="username" autocomplete="new-password">
+
+  <label class="field-label">GitHub</label>
+  <input id="in-github" placeholder="username" autocomplete="new-password">
+
+  <label class="field-label">Instagram</label>
+  <input id="in-instagram" placeholder="username" autocomplete="new-password">
+
+  <label class="field-label">Website <span class="optional">(optional)</span></label>
+  <input id="in-website" placeholder="yoursite.com" autocomplete="new-password">
+
+  <button id="saveProfileBtn" class="btn-primary">Save and continue</button>
+
+  <div class="back-link"><a href="/">Back to map</a></div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="{{ url_for('static', filename='js/countries.js') }}"></script>
+<script>
+function escapeHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
+function buildUrl(v,prefix){v=(v||'').trim();if(!v)return'';return v.startsWith('http')?v:prefix+v;}
+function jitterCoords(bLat,bLng){const s=2.5;return{lat:bLat+(Math.random()-.5)*s,lng:bLng+(Math.random()-.5)*s};}
+
+function populateCountrySelect(sel){
+  const sorted=[...COUNTRIES].sort((a,b)=>a[0].localeCompare(b[0]));
+  sel.innerHTML=sorted.map(([n])=>`<option value="${n}">${n}</option>`).join('');
+}
+
+let toastTimeout;
+function showToast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.remove('hidden');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>el.classList.add('hidden'),2500);}
+
+window.addEventListener('DOMContentLoaded',async()=>{
+  populateCountrySelect(document.getElementById('in-country'));
+
+  const meRes=await fetch('/auth/me');
+  const meData=await meRes.json();
+  if(!meData.authenticated){window.location.href='/';return;}
+  if(meData.profile_complete){window.location.href='/';return;}
+
+  const u=meData.user;
+  document.getElementById('in-username').value=u.username||'';
+  document.getElementById('in-bio').value=u.bio||'';
+  document.getElementById('in-telegram').value=u.social_links&&u.social_links.telegram?u.social_links.telegram.replace('t.me/',''):'';
+  document.getElementById('in-github').value=u.social_links&&u.social_links.github?u.social_links.github.replace('github.com/',''):'';
+  document.getElementById('in-instagram').value=u.social_links&&u.social_links.instagram?u.social_links.instagram.replace('instagram.com/',''):'';
+  document.getElementById('in-website').value=u.social_links&&u.social_links.website?u.social_links.website:'';
+});
+
+document.getElementById('saveProfileBtn').addEventListener('click',async()=>{
+  const country=document.getElementById('in-country').value;
+  if(!country){showToast('Please choose your country');return;}
+  const base=COUNTRY_COORDS[country];
+  const home=jitterCoords(base.lat,base.lng);
+
+  const payload={
+    username:document.getElementById('in-username').value.trim(),
+    bio:document.getElementById('in-bio').value.trim(),
+    location_country:country,
+    location_city:document.getElementById('in-city').value.trim()||null,
+    home_lat:home.lat,
+    home_lng:home.lng,
+    social_links:{
+      telegram:buildUrl(document.getElementById('in-telegram').value,'t.me/'),
+      github:buildUrl(document.getElementById('in-github').value,'github.com/'),
+      instagram:buildUrl(document.getElementById('in-instagram').value,'instagram.com/'),
+      website:document.getElementById('in-website').value.trim(),
+    },
+  };
+  const res=await fetch('/api/profile',{
+    method:'PUT',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload),
+  });
+  if(!res.ok){const err=await res.json();showToast(err.error||'Something went wrong');return;}
+  window.location.href='/';
+});
+</script>
+</body>
+</html>

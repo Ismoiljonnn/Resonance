@@ -541,16 +541,14 @@ async function checkAuth() {
   return data;
 }
 
-document.getElementById('loginBtn').addEventListener('click', () => {
-  document.getElementById('googleLoginBtn').href = `/auth/google/login?intent=share_thought`;
-  showModal('authModal');
-});
-
 document.getElementById('recordTrigger').addEventListener('click', async () => {
   const auth = await checkAuth();
   if (!auth.authenticated) {
-    document.getElementById('googleLoginBtn').href = `/auth/google/login?intent=share_thought`;
-    showModal('authModal');
+    window.location.href = '/auth/google/login';
+    return;
+  }
+  if (!currentUser.username || !currentUser.bio || !currentUser.location_country) {
+    window.location.href = '/register';
     return;
   }
   openRecorderModal();
@@ -580,7 +578,7 @@ document.getElementById('bbRecord').addEventListener('click', () => {
   document.getElementById('recordTrigger').click();
 });
 document.getElementById('bbLogin').addEventListener('click', () => {
-  document.getElementById('loginBtn').click();
+  window.location.href = '/auth/google/login';
 });
 document.getElementById('bbProfile').addEventListener('click', (e) => {
   e.stopPropagation();
@@ -600,63 +598,14 @@ document.getElementById('bbLogout').addEventListener('click', () => {
 
 // ============ On page load ============
 window.addEventListener('DOMContentLoaded', async () => {
-  populateCountrySelect(document.getElementById('in-country'));
   await checkAuth();
 });
 
 function openRecorderModal() {
   showModal('recorderModal');
-  const title = document.getElementById('recorder-title');
-  if (currentUser && currentUser.username && currentUser.bio && currentUser.location_country) {
-    document.getElementById('profileFillStep').classList.add('hidden');
-    document.getElementById('postTypeStep').classList.remove('hidden');
-    title.textContent = 'Share your thought';
-  } else {
-    document.getElementById('profileFillStep').classList.remove('hidden');
-    document.getElementById('postTypeStep').classList.add('hidden');
-    title.textContent = 'Set up your profile';
-    if (currentUser) {
-      document.getElementById('in-username').value = currentUser.username || '';
-      document.getElementById('in-bio').value = currentUser.bio || '';
-    }
-  }
 }
 
-// ============ Profile setup (region-based placement) ============
-document.getElementById('saveProfileBtn').addEventListener('click', async () => {
-  const country = document.getElementById('in-country').value;
-  if (!country) { showToast('Please choose your country'); return; }
-  const base = COUNTRY_COORDS[country];
-  const home = jitterCoords(base.lat, base.lng);
-
-  const payload = {
-    username: document.getElementById('in-username').value.trim(),
-    bio: document.getElementById('in-bio').value.trim(),
-    location_country: country,
-    location_city: document.getElementById('in-city').value.trim() || null,
-    home_lat: home.lat,
-    home_lng: home.lng,
-    social_links: {
-      telegram: buildUrl(document.getElementById('in-telegram').value, 't.me/'),
-      github: buildUrl(document.getElementById('in-github').value, 'github.com/'),
-      instagram: buildUrl(document.getElementById('in-instagram').value, 'instagram.com/'),
-      website: document.getElementById('in-website').value.trim(),
-    },
-  };
-  const res = await fetch('/api/profile', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    const err = await res.json();
-    showToast(err.error || 'Something went wrong');
-    return;
-  }
-  currentUser = await res.json();
-  document.getElementById('profileFillStep').classList.add('hidden');
-  document.getElementById('postTypeStep').classList.remove('hidden');
-});
+// ============ Post text ============
 
 // ============ Character counter ============
 document.getElementById('in-text-post').addEventListener('input', (e) => {

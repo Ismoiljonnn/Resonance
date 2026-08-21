@@ -35,7 +35,7 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
     </button>
 
-    <button id="loginBtn" class="btn-outline">
+    <button id="loginBtn" class="btn-outline" onclick="window.location.href='/auth/google/login'">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Login
     </button>
@@ -164,61 +164,18 @@
   </div>
 </div>
 
-<!-- Sign-in modal -->
-<div id="authModal" class="modal hidden">
-  <div class="modal-content auth-card">
-    <div class="modal-top-row">
-      <div></div>
-      <button class="close-btn" data-close="authModal">&times;</button>
-    </div>
-    <div class="auth-mark">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9z" stroke="currentColor" stroke-width="2"/></svg>
-    </div>
-    <h3>Sign in to the map</h3>
-    <p class="muted">Sign in once with Google — you'll be recognized here from then on.</p>
-    <a id="googleLoginBtn" class="google-btn" href="#">
-      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 01-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.36 0-4.36-1.6-5.07-3.74H.9v2.33A9 9 0 009 18z"/><path fill="#FBBC05" d="M3.93 10.68a5.4 5.4 0 010-3.36V5H.9a9 9 0 000 8l3.03-2.32z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 00.9 5l3.03 2.32C4.64 5.18 6.64 3.58 9 3.58z"/></svg>
-      Continue with Google
-    </a>
-  </div>
-</div>
-
 <!-- Onboarding (region + profile) then post composer -->
 <div id="recorderModal" class="modal hidden">
   <div class="modal-content">
     <div class="modal-top-row">
-      <h3 id="recorder-title">Set up your profile</h3>
+      <h3 id="recorder-title">Share your thought</h3>
       <button class="close-btn" data-close="recorderModal">&times;</button>
     </div>
 
-    <div id="profileFillStep">
-      <p class="muted">This is shown to others on the map. Your region places you on the globe — there's no need to drop a pin yourself.</p>
-      <label class="field-label">Username</label>
-      <input id="in-username" placeholder="username" maxlength="80" autocomplete="new-password">
-      <label class="field-label">Bio</label>
-      <input id="in-bio" placeholder="bio" maxlength="200" autocomplete="new-password">
-      <label class="field-label">Country</label>
-      <select id="in-country"></select>
-      <label class="field-label">City <span class="optional">(optional)</span></label>
-      <input id="in-city" placeholder="city" autocomplete="new-password">
-      <div class="field-group-label">Social links <span class="optional">(optional)</span></div>
-      <label class="field-label">Telegram</label>
-      <input id="in-telegram" placeholder="username" autocomplete="new-password">
-      <label class="field-label">GitHub</label>
-      <input id="in-github" placeholder="username" autocomplete="new-password">
-      <label class="field-label">Instagram</label>
-      <input id="in-instagram" placeholder="username" autocomplete="new-password">
-      <label class="field-label">Website <span class="optional">(optional)</span></label>
-      <input id="in-website" placeholder="yoursite.com" autocomplete="new-password">
-      <button id="saveProfileBtn" class="btn-primary full-width">Save and continue</button>
-    </div>
-
-    <div id="postTypeStep" class="hidden">
-      <div id="textStep">
-        <textarea id="in-text-post" placeholder="Write what's on your mind..." maxlength="500" rows="5"></textarea>
-        <div class="char-counter"><span id="charCount">0</span>/500</div>
-        <button id="publishTextBtn" class="btn-primary full-width">Post to the map</button>
-      </div>
+    <div id="textStep">
+      <textarea id="in-text-post" placeholder="Write what's on your mind..." maxlength="500" rows="5"></textarea>
+      <div class="char-counter"><span id="charCount">0</span>/500</div>
+      <button id="publishTextBtn" class="btn-primary full-width">Post to the map</button>
     </div>
   </div>
 </div>

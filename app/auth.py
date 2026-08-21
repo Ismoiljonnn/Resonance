@@ -59,7 +59,9 @@ def google_callback():
 
     login_user(user, remember=True)
 
-    return redirect(url_for("main.index"))
+    if user.is_profile_complete:
+        return redirect(url_for("main.index"))
+    return redirect(url_for("main.register_page"))
 
 
 @auth_bp.route("/logout")
