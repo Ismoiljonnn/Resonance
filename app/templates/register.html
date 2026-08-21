@@ -12,20 +12,19 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
 <style>
-body{background:var(--bg);font-family:var(--font-body);color:var(--text);margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px;}
-.register-card{width:100%;max-width:480px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:36px 32px;}
+html,body{height:auto !important;overflow:auto !important;margin:0;padding:0;background:var(--bg);font-family:var(--font-body);color:var(--text);}
+body{display:flex;justify-content:center;min-height:100vh;min-height:100dvh;}
+.register-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px 28px;margin:32px 16px;box-sizing:border-box;align-self:flex-start;}
 .register-card h2{font-family:var(--font-display);font-weight:500;font-size:22px;margin:0 0 4px;text-align:center;}
-.register-card .muted{text-align:center;font-size:14px;color:var(--text-muted);margin:0 0 24px;}
-.register-card .field-label{display:block;font-size:12px;font-weight:500;color:var(--text-muted);margin:14px 0 5px;text-transform:uppercase;letter-spacing:.4px;}
+.register-card .muted{text-align:center;font-size:14px;color:var(--text-muted);margin:0 0 20px;line-height:1.4;}
+.register-card .field-label{display:block;font-size:12px;font-weight:500;color:var(--text-muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.4px;}
 .register-card input,.register-card select,.register-card textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-2);color:var(--text);font-size:14px;font-family:var(--font-body);box-sizing:border-box;}
 .register-card input:focus,.register-card select:focus,.register-card textarea:focus{outline:none;border-color:var(--blue);}
 .register-card .optional{color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0;}
-.register-card .field-group-label{font-size:12px;font-weight:500;color:var(--text-muted);margin:20px 0 4px;text-transform:uppercase;letter-spacing:.4px;}
-.register-card .btn-primary{width:100%;padding:12px;margin-top:24px;font-size:15px;font-weight:500;border:none;border-radius:var(--radius);background:var(--blue);color:#fff;cursor:pointer;font-family:var(--font-display);transition:opacity .15s;}
+.register-card .field-group-label{font-size:12px;font-weight:500;color:var(--text-muted);margin:16px 0 4px;text-transform:uppercase;letter-spacing:.4px;}
+.register-card .btn-primary{width:100%;padding:12px;margin-top:20px;font-size:15px;font-weight:500;border:none;border-radius:var(--radius);background:var(--blue);color:#fff;cursor:pointer;font-family:var(--font-display);transition:opacity .15s;}
 .register-card .btn-primary:hover{opacity:.9;}
-.register-card .back-link{text-align:center;margin-top:16px;font-size:13px;}
-.register-card .back-link a{color:var(--text-muted);text-decoration:none;}
-.register-card .back-link a:hover{color:var(--text);}
+@media(max-height:700px){.register-card{margin-top:12px;padding:24px 20px;}.register-card .field-label{margin:8px 0 3px;}.register-card .btn-primary{margin-top:14px;}}
 </style>
 </head>
 <body>
@@ -61,8 +60,6 @@ body{background:var(--bg);font-family:var(--font-body);color:var(--text);margin:
   <input id="in-website" placeholder="yoursite.com" autocomplete="new-password">
 
   <button id="saveProfileBtn" class="btn-primary">Save and continue</button>
-
-  <div class="back-link"><a href="/">Back to map</a></div>
 </div>
 
 <div id="toast" class="toast hidden"></div>
