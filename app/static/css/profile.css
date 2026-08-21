@@ -91,10 +91,17 @@ html,body{overflow:auto;height:auto !important;}
   background:var(--surface-2);border:1px solid var(--border);
   border-radius:var(--radius-md);padding:14px;
 }
+.pp-post-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
 .pp-post-text{
-  font-size:14px;line-height:1.5;
+  font-size:14px;line-height:1.5;flex:1;min-width:0;
   word-wrap:break-word;overflow-wrap:break-word;white-space:normal;
 }
+.pp-trash-btn{
+  background:none;border:none;color:var(--text-muted);
+  padding:4px;border-radius:var(--radius-sm);cursor:pointer;
+  flex-shrink:0;transition:color .15s;
+}
+.pp-trash-btn:hover{color:var(--danger);}
 .pp-post-date{font-size:11px;color:var(--text-muted);margin-top:6px;}
 .pp-empty{text-align:center;color:var(--text-muted);padding:40px;font-size:14px;}
 
