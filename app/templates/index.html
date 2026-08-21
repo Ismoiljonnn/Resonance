@@ -256,6 +256,16 @@
 
 <div id="toast" class="toast hidden"></div>
 
+<div id="confirmModal" class="modal hidden">
+  <div class="modal-content" style="width:360px;text-align:center;padding:28px">
+    <p id="confirmMsg" style="margin:0 0 20px;font-size:14px;color:var(--text)"></p>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button id="confirmCancel" class="btn-outline" style="padding:8px 20px">Cancel</button>
+      <button id="confirmOk" class="btn-primary" style="padding:8px 20px;background:var(--danger)">Delete</button>
+    </div>
+  </div>
+</div>
+
 <script src="{{ url_for('static', filename='js/countries.js') }}"></script>
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>

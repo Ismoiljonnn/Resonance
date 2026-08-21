@@ -5,6 +5,29 @@ let profileEditTarget = null; // which user id the profile modal is currently sh
 
 const body = document.body;
 
+// ============ Custom Confirm ============
+function customConfirm(msg) {
+  return new Promise(resolve => {
+    document.getElementById('confirmMsg').textContent = msg;
+    document.getElementById('confirmModal').classList.remove('hidden');
+    const ok = document.getElementById('confirmOk');
+    const cancel = document.getElementById('confirmCancel');
+    const close = (val) => {
+      document.getElementById('confirmModal').classList.add('hidden');
+      ok.removeEventListener('click', onOk);
+      cancel.removeEventListener('click', onCancel);
+      document.getElementById('confirmModal').removeEventListener('click', onBg);
+      resolve(val);
+    };
+    const onOk = () => close(true);
+    const onCancel = () => close(false);
+    const onBg = (e) => { if (e.target === document.getElementById('confirmModal')) close(false); };
+    ok.addEventListener('click', onOk);
+    cancel.addEventListener('click', onCancel);
+    document.getElementById('confirmModal').addEventListener('click', onBg);
+  });
+}
+
 // ============ 3D Globe ============
 const MARKER_COLORS = [
   '#8ab4f8','#f28b82','#81c995','#fdd663','#c58af9',
@@ -129,7 +152,7 @@ function handlePointHover(point) {
 
 
 async function deleteProfilePost(postId, element) {
-  if (!confirm('Delete this post?')) return;
+  if (!await customConfirm('Delete this post?')) return;
   const res = await fetch(`/api/audio/${postId}`, { method: 'DELETE' });
   if (!res.ok) {
     showToast('Failed to delete');

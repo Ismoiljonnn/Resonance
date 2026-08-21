@@ -153,12 +153,44 @@
 
 <div id="toast" class="toast hidden"></div>
 
+<div id="confirmModal" class="modal hidden">
+  <div class="modal-content" style="width:360px;text-align:center;padding:28px">
+    <p id="confirmMsg" style="margin:0 0 20px;font-size:14px;color:var(--text)"></p>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button id="confirmCancel" class="btn-outline" style="padding:8px 20px">Cancel</button>
+      <button id="confirmOk" class="btn-primary" style="padding:8px 20px;background:var(--danger)">Delete</button>
+    </div>
+  </div>
+</div>
+
 <script>
 let profileData = null;
 let currentUser = null;
 let activePosts = [];
 let allPosts = [];
 let allSearchUsers = [];
+
+function customConfirm(msg) {
+  return new Promise(resolve => {
+    document.getElementById('confirmMsg').textContent = msg;
+    document.getElementById('confirmModal').classList.remove('hidden');
+    const ok = document.getElementById('confirmOk');
+    const cancel = document.getElementById('confirmCancel');
+    const close = (val) => {
+      document.getElementById('confirmModal').classList.add('hidden');
+      ok.removeEventListener('click', onOk);
+      cancel.removeEventListener('click', onCancel);
+      document.getElementById('confirmModal').removeEventListener('click', onBg);
+      resolve(val);
+    };
+    const onOk = () => close(true);
+    const onCancel = () => close(false);
+    const onBg = (e) => { if (e.target === document.getElementById('confirmModal')) close(false); };
+    ok.addEventListener('click', onOk);
+    cancel.addEventListener('click', onCancel);
+    document.getElementById('confirmModal').addEventListener('click', onBg);
+  });
+}
 
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -248,7 +280,7 @@ function renderPosts(posts, isOwn) {
 }
 
 async function deletePost(postId, btn) {
-  if (!confirm('Delete this post?')) return;
+  if (!await customConfirm('Delete this post?')) return;
   const res = await fetch(`/api/audio/${postId}`, { method: 'DELETE' });
   if (!res.ok) { showToast('Failed to delete'); return; }
   btn.closest('.pp-post-card').remove();
