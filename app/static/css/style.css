@@ -477,3 +477,14 @@ body{
   width:100%;height:100%;object-fit:cover;
   border-radius:50%;
 }
+.globe-cluster-marker{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--blue);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:600;font-size:14px;font-family:var(--font-display);
+  border:2px solid rgba(255,255,255,0.8);
+  box-shadow:0 0 10px rgba(0,0,0,0.4);
+  cursor:pointer;transition:transform .15s;
+  transform:translate(-50%,-50%);
+}
+.globe-cluster-marker:hover{transform:translate(-50%,-50%) scale(1.15);}

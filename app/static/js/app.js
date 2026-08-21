@@ -90,28 +90,71 @@ async function loadMarkers() {
   });
 
   markersById = Object.fromEntries(markers.map(m => [m.id, m]));
+  rawMarkers = markers;
+  updateGlobeMarkers();
+}
+let rawMarkers = [];
 
+function clusterMarkers(markers, altitude) {
+  if (altitude < 1.2) return markers.map(m => ({ ...m, _cluster: false }));
+  const gridSize = altitude < 1.8 ? 1.5 : altitude < 2.5 ? 3 : 5;
+  const clusters = {};
+  markers.forEach(m => {
+    const gLat = Math.round(m.lat / gridSize) * gridSize;
+    const gLng = Math.round(m.lng / gridSize) * gridSize;
+    const key = `${gLat},${gLng}`;
+    if (!clusters[key]) clusters[key] = { lat: gLat + (Math.random() - 0.5) * gridSize * 0.3, lng: gLng + (Math.random() - 0.5) * gridSize * 0.3, _items: [], _cluster: true };
+    clusters[key]._items.push(m);
+  });
+  return Object.values(clusters).map(c => {
+    if (c._items.length === 1) return { ...c._items[0], _cluster: false };
+    return { id: 'cluster-' + c.lat + ',' + c.lng, lat: c.lat, lng: c.lng, _cluster: true, _count: c._items.length, _items: c._items, author_avatar: c._items[0].author_avatar };
+  });
+}
+
+function updateGlobeMarkers() {
+  if (!rawMarkers.length) return;
+  const alt = globe.pointOfView().altitude;
+  const data = clusterMarkers(rawMarkers, alt);
   globe
-    .htmlElementsData(markers)
+    .htmlElementsData(data)
     .htmlLat('lat')
     .htmlLng('lng')
     .htmlAltitude(0.012)
     .htmlElement(m => {
+      if (m._cluster && m._count > 1) {
+        const el = document.createElement('div');
+        el.className = 'globe-cluster-marker';
+        el.textContent = m._count;
+        el.addEventListener('pointerdown', (e) => {
+          e.stopPropagation();
+          globe.pointOfView({ lat: m.lat, lng: m.lng, altitude: Math.max(0.8, alt - 1) }, 600);
+        });
+        return el;
+      }
+      const item = m._cluster ? m._items[0] : m;
       const el = document.createElement('div');
       el.className = 'globe-avatar-marker';
       const img = document.createElement('img');
-      img.src = m.author_avatar || '';
-      img.onerror = () => { img.style.display = 'none'; el.style.background = markerColor(m.id); };
+      img.src = item.author_avatar || '';
+      img.onerror = () => { img.style.display = 'none'; el.style.background = markerColor(item.id); };
       el.appendChild(img);
       el.style.cursor = 'pointer';
-      el.addEventListener('pointerdown', (e) => { e.stopPropagation(); handlePointClick(m); });
-      el.addEventListener('pointerenter', () => handlePointHover(m));
+      el.addEventListener('pointerdown', (e) => { e.stopPropagation(); handlePointClick(item); });
+      el.addEventListener('pointerenter', () => handlePointHover(item));
       el.addEventListener('pointerleave', () => handlePointHover(null));
       return el;
     });
 }
+
 loadMarkers();
 setInterval(loadMarkers, 10 * 60 * 1000);
+
+let _zoomThrottle = null;
+globe.onZoom(() => {
+  if (_zoomThrottle) return;
+  _zoomThrottle = setTimeout(() => { _zoomThrottle = null; updateGlobeMarkers(); }, 200);
+});
 
 // ============ Hover card ============
 const hoverCard = document.getElementById('hoverCard');
