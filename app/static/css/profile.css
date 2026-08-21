@@ -66,6 +66,19 @@ html,body{overflow:auto;height:auto !important;}
   flex-shrink:0;transition:color .15s;
 }
 .pp-trash-btn:hover{color:var(--danger);}
+.pp-post-actions{display:flex;gap:2px;flex-shrink:0;align-items:center;}
+.pp-bookmark-btn{
+  background:none;border:none;color:var(--text-muted);
+  padding:4px;border-radius:var(--radius-sm);cursor:pointer;
+  flex-shrink:0;transition:color .15s;
+}
+.pp-bookmark-btn:hover{color:var(--blue);}
+.pp-bookmark-btn.bookmarked{color:var(--blue);}
+.pp-bookmark-btn.bookmarked svg{fill:var(--blue);}
+.pp-post-author{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.pp-post-author-avatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;background:var(--surface-2);object-fit:cover;}
+.pp-post-author-name{font-family:var(--font-display);font-weight:500;font-size:13px;line-height:1.2;}
+.pp-post-author-username{font-size:11px;color:var(--text-muted);}
 .pp-empty{text-align:center;color:var(--text-muted);padding:60px 0;font-size:14px;}
 
 /* ---- Edit form ---- */

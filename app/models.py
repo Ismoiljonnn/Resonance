@@ -142,3 +142,16 @@ class AudioPost(db.Model):
             "text_content": self.text_content if self.post_type == "text" else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
+
+
+class PostBookmark(db.Model):
+    __tablename__ = "post_bookmarks"
+
+    id = db.Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    user_id = db.Column(UUID(as_uuid=False), db.ForeignKey("users.id"), nullable=False, index=True)
+    post_id = db.Column(UUID(as_uuid=False), db.ForeignKey("audio_posts.id"), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    post = db.relationship("AudioPost", backref="bookmarks")
+
+    __table_args__ = (db.UniqueConstraint("user_id", "post_id"),)

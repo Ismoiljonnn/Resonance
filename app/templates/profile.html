@@ -151,6 +151,10 @@
   <div class="pp-tabs-divider">
     <button class="pp-tab active" data-tab="active">Active</button>
     <button class="pp-tab" data-tab="total">All posts</button>
+    <button class="pp-tab hidden" id="pp-saved-tab" data-tab="saved">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:4px"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Saved
+    </button>
   </div>
   <div id="pp-posts" class="pp-posts"></div>
 
@@ -216,6 +220,7 @@ let profileData = null;
 let currentUser = null;
 let activePosts = [];
 let allPosts = [];
+let savedPosts = [];
 let allSearchUsers = [];
 
 function customConfirm(msg) {
@@ -302,29 +307,55 @@ function populateCountrySelect(el) {
     countries.map(([n]) => `<option value="${n}">${n}</option>`).join('');
 }
 
-function renderPosts(posts, isOwn) {
+function renderPosts(posts, isOwn, mode) {
   const box = document.getElementById('pp-posts');
   box.innerHTML = '';
   if (!posts.length) {
-    box.innerHTML = '<div class="pp-empty">No posts yet</div>';
+    const msg = mode === 'saved' ? 'No saved posts yet' : 'No posts yet';
+    box.innerHTML = `<div class="pp-empty">${msg}</div>`;
     return;
   }
   posts.forEach(p => {
     const d = new Date(p.created_at);
     const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
       + ' · ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-    const trashBtn = isOwn ? `<button class="pp-trash-btn" onclick="deletePost('${p.id}', this)" title="Delete">
+    const trashBtn = isOwn && mode !== 'saved' ? `<button class="pp-trash-btn" onclick="deletePost('${p.id}', this)" title="Delete">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>` : '';
+    const bookmarkBtn = `<button class="pp-bookmark-btn" onclick="toggleBookmark('${p.id}', this)" title="Bookmark">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>`;
+    const authorRow = (mode === 'saved' && p.author) ? `
+      <div class="pp-post-author">
+        <img class="pp-post-author-avatar" src="${p.author.avatar_url || ''}" alt="">
+        <div>
+          <div class="pp-post-author-name">${escapeHtml(p.author.full_name || '')}</div>
+          <div class="pp-post-author-username">${p.author.username ? '@' + p.author.username : ''}</div>
+        </div>
+      </div>` : '';
     box.innerHTML += `
       <div class="pp-post-card">
+        ${authorRow}
         <div class="pp-post-top">
           <div class="pp-post-text">${escapeHtml(p.text_content || '')}</div>
-          ${trashBtn}
+          <div class="pp-post-actions">${trashBtn}${bookmarkBtn}</div>
         </div>
         <div class="pp-post-date">${dateStr}</div>
       </div>`;
   });
+}
+
+async function toggleBookmark(postId, btn) {
+  const res = await fetch(`/api/bookmark/${postId}`, { method: 'POST' });
+  if (!res.ok) { showToast('Failed'); return; }
+  const data = await res.json();
+  btn.classList.toggle('bookmarked', data.bookmarked);
+  if (!data.bookmarked) {
+    savedPosts = savedPosts.filter(p => p.id !== postId);
+    const activeTab = document.querySelector('.pp-tab.active');
+    if (activeTab && activeTab.dataset.tab === 'saved') renderPosts(savedPosts, true, 'saved');
+  }
+  showToast(data.bookmarked ? 'Saved' : 'Removed');
 }
 
 async function deletePost(postId, btn) {
@@ -334,6 +365,7 @@ async function deletePost(postId, btn) {
   btn.closest('.pp-post-card').remove();
   activePosts = activePosts.filter(p => p.id !== postId);
   allPosts = allPosts.filter(p => p.id !== postId);
+  savedPosts = savedPosts.filter(p => p.id !== postId);
   document.getElementById('pp-active-count').textContent = activePosts.length;
   document.getElementById('pp-total-count').textContent = allPosts.length;
   showToast('Post deleted');
@@ -426,15 +458,25 @@ async function loadProfile() {
 
   activePosts = profileData.active_posts || [];
   allPosts = profileData.all_posts || [];
-  renderPosts(activePosts, isOwn);
+  renderPosts(activePosts, isOwn, 'active');
 
   document.getElementById('ppEditBtn').classList.toggle('hidden', !isOwn);
+  document.getElementById('pp-saved-tab').classList.toggle('hidden', !isOwn);
+
+  if (isOwn) {
+    fetch('/api/bookmarks').then(r => r.json()).then(d => {
+      savedPosts = d;
+    });
+  }
 
   document.querySelectorAll('.pp-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.pp-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      renderPosts(tab.dataset.tab === 'total' ? allPosts : activePosts, isOwn);
+      const t = tab.dataset.tab;
+      if (t === 'total') renderPosts(allPosts, isOwn, 'total');
+      else if (t === 'saved') renderPosts(savedPosts, isOwn, 'saved');
+      else renderPosts(activePosts, isOwn, 'active');
     });
   });
 

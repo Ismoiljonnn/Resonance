@@ -5,7 +5,7 @@ from flask import Blueprint, request, jsonify, current_app
 from flask_login import login_required, current_user
 from sqlalchemy import text
 
-from .models import db, User, AudioPost
+from .models import db, User, AudioPost, PostBookmark
 from .auth import is_admin
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
@@ -147,6 +147,48 @@ def delete_audio(post_id):
 def my_posts():
     posts = current_user.audio_posts.order_by(AudioPost.created_at.desc()).all()
     return jsonify([p.to_dict(current_user.id) for p in posts])
+
+
+@api_bp.route("/bookmark/<post_id>", methods=["POST"])
+@login_required
+def toggle_bookmark(post_id):
+    post = AudioPost.query.get_or_404(post_id)
+    existing = PostBookmark.query.filter_by(user_id=current_user.id, post_id=post_id).first()
+    if existing:
+        db.session.delete(existing)
+        db.session.commit()
+        return jsonify({"bookmarked": False})
+    else:
+        bm = PostBookmark(user_id=current_user.id, post_id=post_id)
+        db.session.add(bm)
+        db.session.commit()
+        return jsonify({"bookmarked": True})
+
+
+@api_bp.route("/bookmarks")
+@login_required
+def get_bookmarks():
+    bookmarks = PostBookmark.query.filter_by(user_id=current_user.id).order_by(PostBookmark.created_at.desc()).all()
+    posts = []
+    for bm in bookmarks:
+        p = AudioPost.query.get(bm.post_id)
+        if p and p.is_active:
+            d = p.to_dict(current_user.id)
+            d["author"] = {
+                "id": p.author.id,
+                "full_name": p.author.full_name,
+                "username": p.author.username,
+                "avatar_url": p.author.avatar_url,
+            }
+            posts.append(d)
+    return jsonify(posts)
+
+
+@api_bp.route("/is-bookmarked/<post_id>")
+@login_required
+def is_bookmarked(post_id):
+    exists = PostBookmark.query.filter_by(user_id=current_user.id, post_id=post_id).first() is not None
+    return jsonify({"bookmarked": exists})
 
 
 @api_bp.route("/search")
