@@ -15,11 +15,9 @@ api_bp = Blueprint("api", __name__, url_prefix="/api")
 @api_bp.route("/markers")
 def get_markers():
     """Active posts from the last 24 hours shown on the 3D globe"""
-    cutoff = text("NOW() AT TIME ZONE 'UTC' - INTERVAL '24 hours'")
-    posts = AudioPost.query.filter(
-        AudioPost.is_active == True,
-        AudioPost.created_at >= cutoff,
-    ).all()
+    now = datetime.utcnow()
+    posts = AudioPost.query.filter(AudioPost.is_active == True).all()
+    posts = [p for p in posts if p.created_at and (now - p.created_at) < timedelta(hours=24)]
     return jsonify([p.to_map_marker() for p in posts])
 
 

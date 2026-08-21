@@ -62,15 +62,13 @@ class User(db.Model, UserMixin):
 
     def to_public_dict(self, current_user_id=None):
         """What other users see on this user's public profile card"""
-        cutoff = text("NOW() AT TIME ZONE 'UTC' - INTERVAL '24 hours'")
-        active_posts = self.audio_posts.filter(
-            AudioPost.is_active == True,
-            AudioPost.created_at >= cutoff,
-        ).order_by(AudioPost.created_at.desc()).all()
-        all_posts = self.audio_posts.filter_by(is_active=True).order_by(
+        now = datetime.utcnow()
+        all_active = self.audio_posts.filter_by(is_active=True).order_by(
             AudioPost.created_at.desc()
         ).all()
-        total_count = self.audio_posts.filter_by(is_active=True).count()
+        active_posts = [p for p in all_active if p.created_at and (now - p.created_at) < timedelta(hours=24)]
+        all_posts = all_active
+        total_count = len(all_active)
         return {
             "id": self.id,
             "full_name": self.full_name,
