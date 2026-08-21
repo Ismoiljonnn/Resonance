@@ -459,3 +459,21 @@ body{
 .skeleton-line.w40{width:40%;}
 .skeleton-line.w80{width:80%;}
 .skeleton-line.w100{width:100%;}
+
+/* ===== Globe avatar markers ===== */
+.globe-avatar-marker{
+  width:32px;height:32px;border-radius:50%;
+  border:2px solid rgba(138,180,248,0.6);
+  overflow:hidden;background:var(--surface-2);
+  box-shadow:0 0 8px rgba(0,0,0,0.5);
+  transition:transform .15s,box-shadow .15s;
+  transform:translate(-50%,-50%);
+}
+.globe-avatar-marker:hover{
+  transform:translate(-50%,-50%) scale(1.2);
+  box-shadow:0 0 12px rgba(138,180,248,0.5);
+}
+.globe-avatar-marker img{
+  width:100%;height:100%;object-fit:cover;
+  border-radius:50%;
+}

@@ -92,12 +92,23 @@ async function loadMarkers() {
   markersById = Object.fromEntries(markers.map(m => [m.id, m]));
 
   globe
-    .pointsData(markers)
-    .pointLat('lat')
-    .pointLng('lng')
-    .pointColor(m => markerColor(m.id))
-    .pointAltitude(0.012)
-    .pointRadius(0.15);
+    .htmlElementsData(markers)
+    .htmlLat('lat')
+    .htmlLng('lng')
+    .htmlAltitude(0.012)
+    .htmlElement(m => {
+      const el = document.createElement('div');
+      el.className = 'globe-avatar-marker';
+      const img = document.createElement('img');
+      img.src = m.author_avatar || '';
+      img.onerror = () => { img.style.display = 'none'; el.style.background = markerColor(m.id); };
+      el.appendChild(img);
+      el.style.cursor = 'pointer';
+      el.addEventListener('pointerdown', (e) => { e.stopPropagation(); handlePointClick(m); });
+      el.addEventListener('pointerenter', () => handlePointHover(m));
+      el.addEventListener('pointerleave', () => handlePointHover(null));
+      return el;
+    });
 }
 loadMarkers();
 setInterval(loadMarkers, 10 * 60 * 1000);
